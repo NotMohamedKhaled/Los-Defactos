@@ -213,31 +213,31 @@ The following captures were taken from a local run of the application. All image
 
 ### Storefront
 
-| Home | Product catalog |
-|:----:|:-----------------:|
-| ![Home](docs/screenshots/LD1.jpg) | ![Products](docs/screenshots/LD2.jpg) |
+| Home (LD1, LD2) |
+|:--------------:|
+| ![Home](docs/screenshots/LD1.jpg) · ![Home](docs/screenshots/LD2.jpg) |
 
-| Category browsing | Product detail |
-|:-----------------:|:--------------:|
-| ![Categories](docs/screenshots/LD2.1.jpg) | ![Product detail](docs/screenshots/LDdetail.jpg) |
+| Products Category & Product Details (LD2.1, LD2.2) |
+|:-------------------------------------------------:|
+| ![Categories](docs/screenshots/LD2.1.jpg) · ![Product details](docs/screenshots/LD2.2.jpg) |
 
-| Cart | Checkout |
-|:----:|:--------:|
+| Cart (LD3.1) | Checkout (LD3.2) |
+|:-----------:|:---------------:|
 | ![Cart](docs/screenshots/LD3.1.jpg) | ![Checkout](docs/screenshots/LD3.2.PNG) |
 
-| Orders / account area |
-|:---------------------:|
+| Orders (LD3.3) |
+|:--------------:|
 | ![Orders](docs/screenshots/LD3.3.jpg) |
 
 ### Admin dashboard
 
-| Dashboard overview | Product management |
-|:------------------:|:------------------:|
+| Dashboard overview (LDD1) | Product management (LDD4) |
+|:------------------------:|:-------------------------:|
 | ![Admin dashboard](docs/screenshots/LDD1.jpg) | ![Admin products](docs/screenshots/LDD4.jpg) |
 
-| Additional product views |
-|:------------------------:|
-| ![Catalog filters](docs/screenshots/LD2.2.jpg) · ![Product admin detail](docs/screenshots/DProd.jpg) |
+| Restock (LProd) · Order Detail (Ldetails) |
+|:------------------------------------------:|
+| ![Restock](docs/screenshots/DProd.jpg) · ![Order detail](docs/screenshots/LDdetail.jpg) |
 
 ---
 
