@@ -213,29 +213,29 @@ The following captures were taken from a local run of the application. All image
 
 ### Storefront
 
-| Home (LD1, LD2) |
+| Home  |
 |:--------------:|
 | ![Home](docs/screenshots/LD1.jpg) · ![Home](docs/screenshots/LD2.jpg) |
 
-| Products Category & Product Details (LD2.1, LD2.2) |
+| Products Category & Product Details  |
 |:-------------------------------------------------:|
 | ![Categories](docs/screenshots/LD2.1.jpg) · ![Product details](docs/screenshots/LD2.2.jpg) |
 
-| Cart (LD3.1) | Checkout (LD3.2) |
+| Cart  | Checkout  |
 |:-----------:|:---------------:|
 | ![Cart](docs/screenshots/LD3.1.jpg) | ![Checkout](docs/screenshots/LD3.2.PNG) |
 
-| Orders (LD3.3) |
+| Orders  |
 |:--------------:|
 | ![Orders](docs/screenshots/LD3.3.jpg) |
 
 ### Admin dashboard
 
-| Dashboard overview (LDD1) | Product management (LDD4) |
+| Dashboard overview  | Product management  |
 |:------------------------:|:-------------------------:|
 | ![Admin dashboard](docs/screenshots/LDD1.jpg) | ![Admin products](docs/screenshots/LDD4.jpg) |
 
-| Restock (LProd) · Order Detail (Ldetails) |
+| Restock  · Order Detail  |
 |:------------------------------------------:|
 | ![Restock](docs/screenshots/DProd.jpg) · ![Order detail](docs/screenshots/LDdetail.jpg) |
 
