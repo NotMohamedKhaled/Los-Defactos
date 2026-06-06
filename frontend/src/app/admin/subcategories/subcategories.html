@@ -1,0 +1,88 @@
+<div class="p-6 bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm">
+  <div class="mb-4 flex flex-col md:flex-row justify-between items-center border-b border-border-subtle pb-4 gap-4">
+    <h2 class="font-headline-md text-headline-md text-on-background">Subcategories</h2>
+    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+      <select class="w-full md:w-64 px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" (change)="onFilterChange($event)">
+        <option value="">All Categories</option>
+        <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+      </select>
+      <button type="button" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider flex items-center justify-center gap-2 whitespace-nowrap" (click)="openAddModal()">
+        <span class="material-symbols-outlined text-[18px]">add</span>
+        Add Subcategory
+      </button>
+    </div>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+        <tr>
+          <th class="p-4 border-b border-border-subtle">Subcategory</th>
+          <th class="p-4 border-b border-border-subtle">Parent Category</th>
+          <th class="p-4 border-b border-border-subtle text-center">Status</th>
+          <th class="p-4 border-b border-border-subtle text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+        <tr *ngFor="let subCat of paginatedSubCategories" class="hover:bg-surface-bright transition-colors group">
+          <td class="p-4 font-semibold">{{ subCat.name }}</td>
+          <td class="p-4"><span class="bg-surface-container text-on-surface-variant px-2 py-1 rounded-sm text-xs border border-border-subtle">{{ subCat.category?.name || 'Unknown' }}</span></td>
+          <td class="p-4 text-center">
+            <div [ngClass]="{ 'bg-primary-fixed text-primary': !subCat.isDeleted, 'bg-error-container text-on-error-container': subCat.isDeleted }" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{{ subCat.isDeleted ? 'Deleted' : 'Active' }}</div>
+          </td>
+          <td class="p-4 text-right space-x-2">
+            <ng-container *ngIf="subCat.isDeleted; else normalActions">
+              <button class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider" (click)="restoreSubCategory(subCat._id)">Restore</button>
+            </ng-container>
+            <ng-template #normalActions>
+              <button class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider" (click)="editSubCategory(subCat)">Edit</button>
+              <button class="bg-surface-container-lowest text-sale-red border border-sale-red font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-sale-red hover:text-white transition-colors uppercase tracking-wider" (click)="deleteSubCategory(subCat._id)">Delete</button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-admin-pagination
+    [page]="page"
+    [pageSize]="pageSize"
+    [totalItems]="subCategories.length"
+    (pageChange)="page = $event"
+  />
+</div>
+
+<div *ngIf="showFormModal" class="admin-modal-backdrop" adminModalBackdrop (backdropClose)="closeFormModal()">
+  <div class="admin-modal-panel admin-modal-panel--md p-6" (mousedown)="$event.stopPropagation()">
+    <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+      <h2 class="font-headline-md text-headline-md text-on-background">{{ isEditing ? 'Edit Subcategory' : 'Add New Subcategory' }}</h2>
+      <button type="button" class="text-on-surface-variant hover:text-on-surface p-1" (click)="closeFormModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form [formGroup]="subCategoryForm" (ngSubmit)="saveSubCategory()">
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Name</label>
+          <input type="text" maxlength="80" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('name')" formControlName="name" />
+          <app-form-field-error [control]="subCategoryForm.get('name')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Parent Category</label>
+          <select class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('category')" formControlName="category">
+            <option value="" disabled>Select Category</option>
+            <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+          </select>
+          <app-form-field-error [control]="subCategoryForm.get('category')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Description</label>
+          <textarea rows="3" maxlength="500" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('description')" formControlName="description"></textarea>
+          <app-form-field-error [control]="subCategoryForm.get('description')"></app-form-field-error>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-4">
+        <button type="button" class="bg-surface-container-lowest text-on-surface-variant border border-border-subtle font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-surface-variant transition-colors uppercase tracking-wider" (click)="closeFormModal()">Cancel</button>
+        <button type="submit" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider disabled:opacity-50" [disabled]="subCategoryForm.invalid">{{ isEditing ? 'Update' : 'Add Subcategory' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

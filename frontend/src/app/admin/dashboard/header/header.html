@@ -1,0 +1,32 @@
+<aside class="admin-sidebar">
+  <div class="sidebar-header">
+    <a class="sidebar-brand headline-md" routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <i class="fa-solid fa-gauge"></i>
+      Dashboard
+    </a>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a routerLink="/dashboard/users" routerLinkActive="active" class="nav-link body-md">
+      <i class="fa-solid fa-users"></i> Users
+    </a>
+    <a routerLink="/dashboard/products" routerLinkActive="active" class="nav-link body-md">
+      <i class="fa-solid fa-box"></i> Products
+    </a>
+    <a routerLink="/dashboard/orders" routerLinkActive="active" class="nav-link body-md">
+      <i class="fa-solid fa-truck-fast"></i> Orders
+    </a>
+    <a routerLink="/dashboard/faq" routerLinkActive="active" class="nav-link body-md">
+      <i class="fa-regular fa-circle-question"></i> FAQs
+    </a>
+    <a routerLink="/dashboard/testimonials" routerLinkActive="active" class="nav-link body-md">
+      <i class="fa-solid fa-comment-dots"></i> Testimonials
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a routerLink="/login" (click)="logout()" class="nav-link body-md">
+      <i class="fa-solid fa-right-to-bracket"></i> Logout
+    </a>
+  </div>
+</aside>

@@ -1,0 +1,235 @@
+<main class="w-full max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-gutter pb-section-gap min-h-[70vh]">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="Breadcrumb" class="flex items-center gap-2 font-body-md text-body-md text-on-surface-variant mb-6 flex-wrap">
+    <a class="hover:underline" routerLink="/">Home</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    @if (categoryName) {
+      <a class="hover:underline" routerLink="/products" [queryParams]="{}">Products</a>
+      <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+      <a class="hover:underline" routerLink="/products" [queryParams]="{category: categoryName}">{{ categoryName }}</a>
+      @if (activeSubCategoryName) {
+        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+        <span class="text-on-surface font-semibold">{{ activeSubCategoryName }}</span>
+      }
+    } @else {
+      <span class="text-on-surface font-semibold">All Products</span>
+    }
+  </nav>
+
+  <!-- Category Header Row -->
+  <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+    <div>
+      <h1 class="font-display-lg text-display-lg text-on-surface">
+        {{ activeSubCategoryName ? activeSubCategoryName : (categoryName ? categoryName : 'All Products') }}
+      </h1>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-2">Discover our collection</p>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+      <!-- Search Input -->
+      <div class="relative w-full md:w-64">
+        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+        <input
+          type="text"
+          class="w-full bg-surface-container-lowest border border-border-subtle py-3 pl-10 pr-4 rounded font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          placeholder="Search products..."
+          (input)="onSearchChange($event)"
+        />
+      </div>
+
+      <!-- Sort Dropdown -->
+      <div class="w-full md:w-auto relative">
+        <select class="w-full md:w-48 appearance-none bg-surface-container-lowest border border-border-subtle py-3 pl-4 pr-10 rounded font-body-md text-body-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary" (change)="onSortChange($event)">
+          <option value="-createdAt">Newest Arrivals</option>
+          <option value="price">Price: Low to High</option>
+          <option value="-price">Price: High to Low</option>
+          <option value="title">A &rarr; Z</option>
+          <option value="-title">Z &rarr; A</option>
+        </select>
+        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Grid Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+
+    <!-- Sidebar Filters (Desktop) -->
+    <aside class="hidden lg:block lg:col-span-3 space-y-8 sticky top-[100px]">
+      <!-- Category Links -->
+      <div class="border-b border-border-subtle pb-6">
+        <h3 class="font-headline-md text-headline-md mb-4">Categories</h3>
+        <ul class="space-y-3 font-body-md text-body-md text-on-surface-variant">
+          <li><a routerLink="/products" [queryParams]="{}" class="hover:text-primary transition-colors cursor-pointer" [class.font-bold]="!categoryName" [class.text-on-surface]="!categoryName">All Products</a></li>
+          @for (cat of sidebarCategories; track cat._id) {
+            <li>
+              <a
+                routerLink="/products"
+                [queryParams]="{ category: cat.name }"
+                class="hover:text-primary transition-colors cursor-pointer"
+                [class.font-bold]="categoryName === cat.name"
+                [class.text-on-surface]="categoryName === cat.name"
+              >{{ cat.name }}</a>
+            </li>
+          }
+          @if (categories.length > maxSidebarCategories) {
+            <li>
+              <a routerLink="/products" [queryParams]="{}" class="text-primary hover:underline text-sm">View all categories</a>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <!-- Price Range Filter -->
+      <div class="border-b border-border-subtle pb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-headline-md text-headline-md">Price Range</h3>
+          @if (appliedMinPrice !== null || appliedMaxPrice !== null) {
+            <button (click)="clearFilters()" class="text-xs text-primary hover:underline">Clear</button>
+          }
+        </div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">$</span>
+            <input
+              class="w-full pl-7 pr-3 py-2 border border-border-subtle bg-surface-container-lowest rounded font-body-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+              placeholder="Min"
+              type="number"
+              [(ngModel)]="minPrice"
+            />
+          </div>
+          <span class="text-on-surface-variant">–</span>
+          <div class="relative flex-1">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant font-body-md">$</span>
+            <input
+              class="w-full pl-7 pr-3 py-2 border border-border-subtle bg-surface-container-lowest rounded font-body-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+              placeholder="Max"
+              type="number"
+              [(ngModel)]="maxPrice"
+            />
+          </div>
+        </div>
+        <button
+          (click)="applyFilters()"
+          class="w-full bg-primary text-on-primary py-3 rounded font-body-md font-bold hover:opacity-90 active:scale-[0.98] transition-all">
+          Apply Filters
+        </button>
+      </div>
+    </aside>
+
+    <!-- Product Grid -->
+    <div class="lg:col-span-9">
+
+      <!-- Subcategory Pills — always shown when subcats exist -->
+      @if (categoryName && subCategories.length > 0) {
+        <div class="mb-6 flex flex-wrap gap-2 items-center">
+          <button
+            (click)="setSubCategory('')"
+            [class]="activeSubCategoryId === ''
+              ? 'border border-primary bg-primary text-on-primary font-body-md px-4 py-2 rounded-full transition-colors whitespace-nowrap'
+              : 'border border-border-subtle bg-surface-container-lowest text-on-surface-variant font-body-md px-4 py-2 rounded-full transition-colors whitespace-nowrap hover:border-primary hover:text-primary'">
+            All
+          </button>
+          @for (subCat of visibleSubCategories; track subCat._id) {
+            <button
+              (click)="setSubCategory(subCat._id)"
+              [class]="activeSubCategoryId === subCat._id
+                ? 'border border-primary bg-primary text-on-primary font-body-md px-4 py-2 rounded-full transition-colors whitespace-nowrap'
+                : 'border border-border-subtle bg-surface-container-lowest text-on-surface-variant font-body-md px-4 py-2 rounded-full transition-colors whitespace-nowrap hover:border-primary hover:text-primary'">
+              {{ subCat.name }}
+            </button>
+          }
+          @if (hasMoreSubCategories) {
+            <button
+              type="button"
+              (click)="toggleShowAllSubCategories()"
+              class="border border-dashed border-border-subtle text-primary font-body-md px-4 py-2 rounded-full transition-colors whitespace-nowrap hover:border-primary">
+              +{{ subCategories.length - maxSubCategoriesPreview }} more
+            </button>
+          } @else if (showAllSubCategories && subCategories.length > maxSubCategoriesPreview) {
+            <button
+              type="button"
+              (click)="toggleShowAllSubCategories()"
+              class="border border-border-subtle text-on-surface-variant font-body-md px-4 py-2 rounded-full transition-colors whitespace-nowrap hover:border-primary hover:text-primary">
+              Show less
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Loading skeleton -->
+      @if (isLoading) {
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter">
+          @for (i of [1,2,3,4,5,6,7,8]; track i) {
+            <div class="animate-pulse rounded overflow-hidden">
+              <div class="bg-surface-container h-64 w-full rounded mb-3"></div>
+              <div class="bg-surface-container h-4 w-3/4 rounded mb-2"></div>
+              <div class="bg-surface-container h-4 w-1/2 rounded"></div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (!isLoading && products.length === 0) {
+        <div class="flex flex-col items-center justify-center py-24 text-center gap-6">
+          <div class="relative">
+            <div class="w-28 h-28 rounded-full bg-surface-container flex items-center justify-center">
+              <span class="material-symbols-outlined text-[56px] text-on-surface-variant">inventory_2</span>
+            </div>
+            <div class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px] text-primary">search_off</span>
+            </div>
+          </div>
+          <div>
+            <h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">No products found</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-xs mx-auto">
+              @if (activeSubCategoryName) {
+                There are no products in <strong>{{ activeSubCategoryName }}</strong> yet. Try a different subcategory.
+              } @else if (categoryName) {
+                There are no products in <strong>{{ categoryName }}</strong> yet. Try another category.
+              } @else {
+                We couldn't find any products matching your filters.
+              }
+            </p>
+          </div>
+          <div class="flex gap-3 flex-wrap justify-center">
+            @if (activeSubCategoryId) {
+              <button (click)="setSubCategory('')" class="px-5 py-2 border border-border-subtle rounded font-body-md hover:border-primary hover:text-primary transition-colors">
+                Clear subcategory
+              </button>
+            }
+            <a routerLink="/products" [queryParams]="{}" class="px-5 py-2 bg-primary text-on-primary rounded font-body-md hover:opacity-90 transition-opacity">
+              Browse all products
+            </a>
+          </div>
+        </div>
+      }
+
+      <!-- Product Grid -->
+      @if (!isLoading && products.length > 0) {
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-gutter">
+          @for (product of products; track product) {
+            <app-product [myProd]="product"></app-product>
+          }
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-12 flex justify-center items-center gap-2 border-t border-border-subtle pt-8">
+          <button class="w-10 h-10 flex items-center justify-center border border-border-subtle text-on-surface-variant hover:text-on-surface hover:border-ink-black transition-colors rounded disabled:opacity-30" (click)="prevPage()" [disabled]="page === 1">
+            <span class="material-symbols-outlined">chevron_left</span>
+          </button>
+
+          <span class="font-body-md text-body-md mx-4">Page {{ page }} / {{ totalPages }}</span>
+
+          <button class="w-10 h-10 flex items-center justify-center border border-border-subtle text-on-surface-variant hover:text-on-surface hover:border-ink-black transition-colors rounded disabled:opacity-30" (click)="nextPage()" [disabled]="page === totalPages">
+            <span class="material-symbols-outlined">chevron_right</span>
+          </button>
+        </div>
+      }
+
+    </div>
+
+  </div>
+</main>

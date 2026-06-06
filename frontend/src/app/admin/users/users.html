@@ -1,0 +1,129 @@
+<div class="p-6 bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm">
+  <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+    <h2 class="font-headline-md text-headline-md text-on-background">User Management</h2>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center my-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+
+  <div class="overflow-x-auto" *ngIf="!loading">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+        <tr>
+          <th class="p-4 border-b border-border-subtle">Name</th>
+          <th class="p-4 border-b border-border-subtle">Email</th>
+          <th class="p-4 border-b border-border-subtle">Phone</th>
+          <th class="p-4 border-b border-border-subtle text-center">Status</th>
+          <th class="p-4 border-b border-border-subtle">Role</th>
+          <th class="p-4 border-b border-border-subtle text-center">Orders</th>
+          <th class="p-4 border-b border-border-subtle text-right">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+        <ng-container *ngFor="let user of users">
+          <!-- User row -->
+          <tr class="hover:bg-surface-bright transition-colors group">
+            <td class="p-4 font-semibold">{{ user.name }}</td>
+            <td class="p-4 text-on-surface-variant">{{ user.email }}</td>
+            <td class="p-4 text-on-surface-variant">{{ user.phone }}</td>
+
+            <td class="p-4 text-center">
+              <div
+                [ngClass]="{
+                  'bg-primary-fixed text-primary': !user.isDeleted,
+                  'bg-error-container text-on-error-container': user.isDeleted
+                }"
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+              >
+                {{ user.isDeleted ? 'Deleted' : 'Active' }}
+              </div>
+            </td>
+
+            <td class="p-4 uppercase text-xs font-bold tracking-wider text-secondary">{{ user.role }}</td>
+
+            <td class="p-4 text-center">
+              <button
+                class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider"
+                (click)="toggleOrders(user)"
+              >
+                {{ user.showOrders ? 'Hide' : 'Show' }}
+              </button>
+            </td>
+
+            <td class="p-4 text-right">
+              <ng-container *ngIf="user._id !== currentUserId">
+                <ng-container *ngIf="user.isDeleted; else activeUserActions">
+                  <button
+                    class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider"
+                    (click)="restoreUser(user._id!)"
+                  >
+                    Restore
+                  </button>
+                </ng-container>
+
+                <ng-template #activeUserActions>
+                  <button
+                    class="bg-surface-container-lowest text-sale-red border border-sale-red font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-sale-red hover:text-white transition-colors uppercase tracking-wider"
+                    (click)="deleteUser(user._id!)"
+                  >
+                    Delete
+                  </button>
+                </ng-template>
+              </ng-container>
+
+              <ng-container *ngIf="user._id === currentUserId">
+                <span class="text-on-surface-variant italic text-sm">Your account</span>
+              </ng-container>
+            </td>
+          </tr>
+
+          <!-- Orders row -->
+          <tr *ngIf="user.showOrders" class="bg-surface-bright border-b border-border-subtle">
+            <td colspan="7" class="p-4">
+              <div class="p-4 border border-border-subtle rounded-lg bg-surface-container-lowest">
+                <h6 class="font-headline-md text-headline-md text-on-surface mb-4">Orders for {{ user.name }}</h6>
+
+                <div *ngIf="loadingOrdersFor === user._id" class="flex justify-center py-4">
+                  <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                </div>
+
+                <div *ngIf="loadingOrdersFor !== user._id && user.orders?.length; else noOrders" class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse border border-border-subtle rounded-DEFAULT">
+                    <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+                      <tr>
+                        <th class="p-3 border-b border-border-subtle">Order ID</th>
+                        <th class="p-3 border-b border-border-subtle">Total Price</th>
+                        <th class="p-3 border-b border-border-subtle">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+                      <tr *ngFor="let order of user.orders" class="hover:bg-surface-bright transition-colors">
+                        <td class="p-3 font-mono text-sm">{{ order._id }}</td>
+                        <td class="p-3 font-price-sm text-price-sm">{{ order.totalPrice | currency:'USD' }}</td>
+                        <td class="p-3 uppercase text-xs font-bold tracking-wider text-secondary">{{ order.orderStat }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <ng-template #noOrders>
+                  <p *ngIf="loadingOrdersFor !== user._id" class="text-on-surface-variant mb-0 font-body-md italic">No orders found for this user.</p>
+                </ng-template>
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <app-admin-pagination
+    *ngIf="!loading"
+    [page]="page"
+    [pageSize]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+  />
+</div>

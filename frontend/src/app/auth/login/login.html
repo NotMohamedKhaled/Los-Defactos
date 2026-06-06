@@ -1,0 +1,83 @@
+<main class="w-full min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-grid-margin-mobile">
+  <div class="w-full max-w-md bg-surface-container-lowest border border-border-subtle rounded-DEFAULT shadow-lg p-8">
+    
+    <div class="text-center mb-8">
+      <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Welcome Back</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-2">Login to your Los Defactos account.</p>
+    </div>
+
+    <!-- Message -->
+    <div *ngIf="message" class="mb-6 p-4 rounded-DEFAULT font-body-md text-body-md" 
+         [ngClass]="{
+           'bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF]': messageType === 'error',
+           'bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6]': messageType === 'success',
+           'bg-[#FEF7E0] text-[#E37400] border border-[#FEEFC3]': messageType === 'warning'
+         }">
+      {{ message }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
+      
+      <!-- Email -->
+      <div>
+        <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase" for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          placeholder="Enter your email"
+        />
+      </div>
+
+      <!-- Password -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <label class="block font-label-caps text-label-caps text-on-surface-variant uppercase" for="password">Password</label>
+          <a href="#" class="font-body-md text-[12px] text-primary hover:underline">Forgot password?</a>
+        </div>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          placeholder="Enter your password"
+        />
+      </div>
+
+      <!-- Remember Me -->
+      <div class="flex items-center">
+        <input 
+          type="checkbox" 
+          id="rememberMe" 
+          formControlName="rememberMe"
+          class="h-4 w-4 text-primary focus:ring-primary border-border-subtle rounded"
+        >
+        <label for="rememberMe" class="ml-2 block text-body-md text-on-surface-variant">
+          Remember me
+        </label>
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="w-full bg-primary text-on-primary font-label-caps text-[14px] py-4 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="loginForm.invalid"
+      >
+        Sign In
+      </button>
+
+      <div class="relative flex py-4 items-center">
+        <div class="flex-grow border-t border-border-subtle"></div>
+        <span class="flex-shrink-0 mx-4 text-on-surface-variant font-body-md text-[12px] uppercase">or</span>
+        <div class="flex-grow border-t border-border-subtle"></div>
+      </div>
+
+      <p class="text-center font-body-md text-body-md text-on-surface-variant">
+        Don't have an account? 
+        <a routerLink="/signup" class="text-primary font-bold hover:underline">Register here</a>
+      </p>
+
+    </form>
+  </div>
+</main>

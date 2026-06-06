@@ -1,0 +1,48 @@
+<div class="p-6 bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm">
+  <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+    <h2 class="font-headline-md text-headline-md text-on-background">Manage Testimonials</h2>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center my-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+
+  <div class="overflow-x-auto" *ngIf="!loading">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+        <tr>
+          <th class="p-4 border-b border-border-subtle w-1/4">User</th>
+          <th class="p-4 border-b border-border-subtle w-1/2">Content</th>
+          <th class="p-4 border-b border-border-subtle text-center">Status</th>
+          <th class="p-4 border-b border-border-subtle text-right">Action</th>
+        </tr>
+      </thead>
+
+      <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+        <tr *ngFor="let testimonial of testimonials" class="hover:bg-surface-bright transition-colors group">
+          <td class="p-4 font-semibold">
+            {{ typeof testimonial.user === 'string' ? 'N/A' : testimonial.user.name }}
+          </td>
+          <td class="p-4 text-on-surface-variant italic">"{{ testimonial.message }}"</td>
+          <td class="p-4 text-center">
+            <span
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+              [ngClass]="testimonial.isPosted ? 'bg-primary-fixed text-primary' : 'bg-surface-variant text-on-surface-variant'"
+            >
+              {{ testimonial.isPosted ? 'Posted' : 'Pending' }}
+            </span>
+          </td>
+          <td class="p-4 text-right">
+            <button
+              class="font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT transition-colors uppercase tracking-wider"
+              [ngClass]="testimonial.isPosted ? 'bg-surface-container-lowest text-sale-red border border-sale-red hover:bg-sale-red hover:text-white' : 'bg-surface-container-lowest text-primary border border-primary hover:bg-primary hover:text-on-primary'"
+              (click)="togglePost(testimonial)"
+            >
+              {{ testimonial.isPosted ? 'Unpost' : 'Approve' }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

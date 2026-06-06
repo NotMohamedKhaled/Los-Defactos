@@ -1,0 +1,85 @@
+<div class="p-6 bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm">
+  <div class="mb-4 flex justify-between items-center border-b border-border-subtle pb-4">
+    <h2 class="font-headline-md text-headline-md text-on-background">Categories</h2>
+    <button type="button" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider flex items-center gap-2" (click)="openAddModal()">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Add Category
+    </button>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+        <tr>
+          <th class="p-4 border-b border-border-subtle">Category</th>
+          <th class="p-4 border-b border-border-subtle text-center">Status</th>
+          <th class="p-4 border-b border-border-subtle text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+        <tr *ngFor="let cat of paginatedCategories" class="hover:bg-surface-bright transition-colors group">
+          <td class="p-4 flex items-center gap-4 font-semibold">
+            <img *ngIf="cat.imgUrl" [src]="cat.imgUrl | imageUrl" alt="{{ cat.name }}" class="w-12 h-12 object-cover rounded-DEFAULT border border-border-subtle" />
+            <div *ngIf="!cat.imgUrl" class="w-12 h-12 bg-surface-variant rounded-DEFAULT border border-border-subtle flex items-center justify-center text-on-surface-variant">
+              <span class="material-symbols-outlined">image</span>
+            </div>
+            {{ cat.name }}
+          </td>
+          <td class="p-4 text-center">
+            <div [ngClass]="{ 'bg-primary-fixed text-primary': !cat.isDeleted, 'bg-error-container text-on-error-container': cat.isDeleted }" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+              {{ cat.isDeleted ? 'Deleted' : 'Active' }}
+            </div>
+          </td>
+          <td class="p-4 text-right space-x-2">
+            <ng-container *ngIf="cat.isDeleted; else normalActions">
+              <button class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider" (click)="restoreCategory(cat._id)">Restore</button>
+            </ng-container>
+            <ng-template #normalActions>
+              <button class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider" (click)="editCategory(cat)">Edit</button>
+              <button class="bg-surface-container-lowest text-sale-red border border-sale-red font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-sale-red hover:text-white transition-colors uppercase tracking-wider" (click)="deleteCategory(cat._id)">Delete</button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-admin-pagination
+    [page]="page"
+    [pageSize]="pageSize"
+    [totalItems]="categories.length"
+    (pageChange)="page = $event"
+  />
+</div>
+
+<div *ngIf="showFormModal" class="admin-modal-backdrop" adminModalBackdrop (backdropClose)="closeFormModal()">
+  <div class="admin-modal-panel admin-modal-panel--md p-6" (mousedown)="$event.stopPropagation()">
+    <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+      <h2 class="font-headline-md text-headline-md text-on-background">{{ isEditing ? 'Edit Category' : 'Add New Category' }}</h2>
+      <button type="button" class="text-on-surface-variant hover:text-on-surface p-1" (click)="closeFormModal()"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <form [formGroup]="categoryForm" (ngSubmit)="saveCategory()">
+      <div class="grid grid-cols-1 gap-6">
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Name</label>
+          <input type="text" maxlength="80" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('name')" formControlName="name" />
+          <app-form-field-error [control]="categoryForm.get('name')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Category Image</label>
+          <input type="file" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" (change)="onFileSelected($event)" accept="image/*" />
+          <div *ngIf="imagePreview" class="mt-4"><img [src]="imagePreview" alt="Preview" class="w-24 h-24 object-cover rounded-md border border-border-subtle" /></div>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Description</label>
+          <textarea rows="3" maxlength="500" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('desc')" formControlName="desc"></textarea>
+          <app-form-field-error [control]="categoryForm.get('desc')"></app-form-field-error>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-4">
+        <button type="button" class="bg-surface-container-lowest text-on-surface-variant border border-border-subtle font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-surface-variant transition-colors uppercase tracking-wider" (click)="closeFormModal()">Cancel</button>
+        <button type="submit" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider disabled:opacity-50" [disabled]="categoryForm.invalid">{{ isEditing ? 'Update' : 'Add Category' }}</button>
+      </div>
+    </form>
+  </div>
+</div>

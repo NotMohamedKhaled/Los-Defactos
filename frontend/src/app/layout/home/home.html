@@ -1,0 +1,78 @@
+<main>
+  <!-- Hero Banner -->
+  <a routerLink="/products" class="relative block w-full h-[60vh] md:h-[80vh] max-h-[800px] overflow-hidden cursor-pointer group">
+    <img alt="New Season Arrivals" class="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+      src="Gemini.png"/>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent flex items-center px-grid-margin-mobile md:px-grid-margin-desktop">
+      <div class="max-w-xl text-on-primary">
+        <h1 class="font-display-lg text-display-lg md:text-[56px] md:leading-[64px] font-bold mb-4 drop-shadow-md">New Season Arrivals</h1>
+        <p class="font-body-lg text-body-lg mb-8 drop-shadow-md opacity-90">Discover the latest trends in urban fashion. Stay stylish, stay comfortable.</p>
+      </div>
+    </div>
+  </a>
+
+  <!-- Featured Categories -->
+  <section class="max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-section-gap">
+    <div class="flex justify-between items-end mb-8">
+      <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-on-surface">Shop by Category</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+      <!-- Men -->
+      <a routerLink="/products" [queryParams]="{category: 'Men'}" class="group block relative aspect-[2/3] overflow-hidden rounded-DEFAULT border border-border-subtle cursor-pointer">
+        <img src="men.avif" alt="Men" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+          <h3 class="text-white font-headline-md text-headline-md font-bold uppercase tracking-widest drop-shadow-md">Men</h3>
+        </div>
+      </a>
+      
+      <!-- Women -->
+      <a routerLink="/products" [queryParams]="{category: 'Women'}" class="group block relative aspect-[2/3] overflow-hidden rounded-DEFAULT border border-border-subtle cursor-pointer">
+        <img src="women.avif" alt="Women" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+          <h3 class="text-white font-headline-md text-headline-md font-bold uppercase tracking-widest drop-shadow-md">Women</h3>
+        </div>
+      </a>
+      <!-- Kids -->
+      <a routerLink="/products" [queryParams]="{category: 'Kids'}" class="group block relative aspect-[2/3] overflow-hidden rounded-DEFAULT border border-border-subtle cursor-pointer">
+        <img src="kids.avif" alt="Kids" class="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+          <h3 class="text-white font-headline-md text-headline-md font-bold uppercase tracking-widest drop-shadow-md">Kids</h3>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- New Arrivals — fetched from backend, shown dynamically -->
+  <section class="max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop pb-section-gap">
+    <div class="flex justify-between items-end mb-8 border-b border-border-subtle pb-4">
+      <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg font-bold text-on-surface">New Arrivals</h2>
+      <a class="font-body-md text-body-md text-primary hover:underline font-bold flex items-center" routerLink="/products">
+        View All <span class="material-symbols-outlined text-[16px] ml-1">chevron_right</span>
+      </a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-gutter">
+      @for (prod of newArrivals; track prod._id) {
+        <div class="group bg-surface-container-lowest rounded-DEFAULT border border-border-subtle overflow-hidden hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow duration-300 flex flex-col h-full cursor-pointer"
+             [routerLink]="['/product', prod.slug]">
+          <div class="relative aspect-[3/4] overflow-hidden bg-surface-container p-card-padding">
+            <span class="absolute top-2 left-2 bg-primary text-on-primary font-label-caps text-[10px] px-2 py-1 rounded-sm z-10">NEW</span>
+            <img [alt]="prod.title" class="w-full h-full object-cover object-top mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+                 [src]="prod.imgUrl | imageUrl"/>
+          </div>
+          <div class="p-card-padding flex flex-col flex-grow">
+            <h3 class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-2 flex-grow group-hover:text-primary transition-colors">{{ prod.title }}</h3>
+            <div class="mt-auto">
+              <span class="font-price-sm text-price-sm text-on-surface">${{ prod.price }}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+    <div class="mt-8 flex justify-center">
+      <a routerLink="/products" class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-label-caps px-8 py-3 rounded hover:bg-primary hover:text-on-primary transition-colors duration-300 uppercase tracking-wider">
+        View All Products
+      </a>
+    </div>
+  </section>
+
+</main>

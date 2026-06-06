@@ -1,0 +1,11 @@
+For the env file you should replace these dummy values with you own keys and values.
+
+MONGO_URI=mongodb://localhost:27017/E-commerce
+PORT=3000
+LOCALHOST=http://localhost:3000
+ALLOWED_ORIGINS=http://localhost:4200,http://127.0.0.1:4200
+NODE_ENV=development
+JWT_SECRET=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+JWT_EXPIRES_IN=1d
+STRIPE_SECRET_KEY=placeholder
+STRIPE_PUBLISHABLE_KEY=placeholder

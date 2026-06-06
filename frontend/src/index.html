@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>NtiCommHame</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+
+<link
+rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+/>
+
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+
+
+  <app-root></app-root>
+  <!-- Include Bootstrap's JS and Popper.js -->
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+<script>
+  const collectionsSwiper = new Swiper('.collections-swiper', {
+    slidesPerView: 3,
+    spaceBetween: 30,
+    loop: true,
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    autoplay: {
+      delay: 3500,
+      disableOnInteraction: false,
+    },
+    breakpoints: {
+      0: { slidesPerView: 1 },
+      768: { slidesPerView: 2 },
+      1024: { slidesPerView: 3 },
+    },
+  });
+</script>
+</body>
+</html>

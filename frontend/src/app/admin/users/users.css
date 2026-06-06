@@ -1,0 +1,12 @@
+.table-sm th,
+.table-sm td {
+  padding: 0.4rem 0.6rem;
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+button {
+  min-width: 100px;
+}

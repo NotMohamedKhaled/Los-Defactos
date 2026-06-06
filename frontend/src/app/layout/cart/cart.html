@@ -1,0 +1,148 @@
+<main class="flex-grow w-full max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-8 md:py-12">
+  <div class="mb-8">
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">Shopping Bag</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant">{{ cartData.products.length }} items in your bag.</p>
+  </div>
+
+  <ng-container *ngIf="cartData.products.length; else emptyCart">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+      
+      <!-- Left Column: Cart Items -->
+      <div class="w-full lg:w-2/3 flex flex-col gap-4">
+        <div *ngFor="let item of cartData.products" class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT flex flex-col sm:flex-row p-card-padding gap-4 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow duration-200">
+          
+          <!-- Image -->
+          <div class="w-full sm:w-32 h-40 sm:h-32 flex-shrink-0 bg-surface-container-low rounded-DEFAULT overflow-hidden relative cursor-pointer" routerLink="/product/{{item.product.slug}}">
+
+            <img [alt]="item.product.title" class="w-full h-full object-cover" [src]="item.product.imgUrl | imageUrl" />
+          </div>
+
+          <!-- Details -->
+          <div class="flex flex-col justify-between flex-grow">
+            <div class="flex justify-between items-start gap-4">
+              <div class="cursor-pointer" routerLink="/product/{{item.product._id}}">
+                <h3 class="font-headline-md text-headline-md text-on-surface mb-1 hover:text-primary transition-colors">{{ item.product.title }}</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant mb-1">Item #: {{ item.product._id | slice:-6 | uppercase }}</p>
+                <div class="flex gap-2 text-xs text-on-surface-variant font-medium mt-1">
+                  <span *ngIf="item.color" class="bg-surface-container px-2 py-0.5 rounded-sm border border-border-subtle">Color: {{ item.color }}</span>
+                  <span *ngIf="item.size" class="bg-surface-container px-2 py-0.5 rounded-sm border border-border-subtle">Size: {{ item.size }}</span>
+                </div>
+              </div>
+              <div class="text-right flex flex-col items-end">
+                <p class="font-price-lg text-price-lg text-on-surface">${{ item.product.price }}</p>
+              </div>
+            </div>
+
+            <!-- Actions Row -->
+            <div class="flex justify-between items-end border-t border-border-subtle pt-3 mt-2">
+              <div class="flex items-center gap-4">
+                
+                <!-- Quantity Control -->
+                <div class="flex items-center border border-border-subtle rounded-DEFAULT h-8">
+                  <button class="px-2 text-on-surface-variant hover:bg-surface-container transition-colors h-full flex items-center justify-center" (click)="updateQuantity(item, item.quantity - 1)" aria-label="Decrease quantity">
+                    <span class="material-symbols-outlined text-[18px]">remove</span>
+                  </button>
+                  <input class="w-8 text-center bg-transparent border-none p-0 h-full font-body-md text-body-md focus:ring-0" readonly [value]="item.quantity" />
+                  <button class="px-2 text-on-surface-variant hover:bg-surface-container transition-colors h-full flex items-center justify-center" (click)="updateQuantity(item, item.quantity + 1)" aria-label="Increase quantity">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                  </button>
+                </div>
+                
+                <!-- Remove Button -->
+                <button class="text-on-surface-variant hover:text-sale-red transition-colors font-body-md text-body-md flex items-center gap-1" (click)="deleteItem(item)">
+                  <span class="material-symbols-outlined text-[18px]">delete</span> <span class="hidden sm:inline">Remove</span>
+                </button>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Order Summary (Sticky) -->
+      <div class="w-full lg:w-1/3 sticky top-24">
+        
+        <!-- Delivery Options -->
+        <div class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-6 shadow-sm mb-6">
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4 border-b border-border-subtle pb-4">Delivery Options</h2>
+          <div class="flex flex-col gap-3">
+            <label
+              *ngFor="let option of deliveryOptions; let i = index"
+              class="flex items-start gap-3 cursor-pointer group p-3 rounded-DEFAULT border transition-colors"
+              [ngClass]="
+                (cartData.delivery.id === option.id) ||
+                (!cartData.delivery.id && i === 0)
+                  ? 'border-primary bg-primary-fixed/30'
+                  : 'border-border-subtle bg-surface-bright hover:border-primary/50'
+              "
+            >
+              <input
+                type="radio"
+                name="delivery"
+                class="text-primary focus:ring-primary h-4 w-4 border-border-subtle mt-1 shrink-0"
+                [checked]="(cartData.delivery.id === option.id) || (!cartData.delivery.id && i === 0)"
+                (change)="selectDelivery(option)"
+              />
+              <div class="flex-1 min-w-0">
+                <div class="flex items-start justify-between gap-3">
+                  <span class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors">
+                    {{ option.label }}
+                  </span>
+                  <span
+                    class="font-label-caps text-label-caps shrink-0"
+                    [ngClass]="option.fee === 0 ? 'text-primary font-bold' : 'text-on-surface'"
+                  >
+                    {{ formatDeliveryFee(option.fee) }}
+                  </span>
+                </div>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+                  Arrives by {{ option.dateLabel || option.date }}
+                </p>
+                <p class="font-body-sm text-body-sm text-outline mt-0.5">
+                  {{ option.etaDays }} business day{{ option.etaDays === 1 ? '' : 's' }}
+                </p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-6 shadow-sm">
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-6 border-b border-border-subtle pb-4">Order Summary</h2>
+          <div class="flex flex-col gap-4 mb-6 text-on-surface font-body-md text-body-md">
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">Subtotal ({{ cartData.products.length }} items)</span>
+              <span class="font-semibold">${{ subtotal }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-on-surface-variant">Delivery</span>
+              <span class="font-semibold">${{ deliveryFee }}</span>
+            </div>
+            <div class="flex justify-between border-t border-border-subtle pt-4 mt-2">
+              <span class="font-headline-md text-headline-md text-on-surface">Total</span>
+              <span class="font-headline-md text-headline-md text-on-surface">${{ total }}</span>
+            </div>
+          </div>
+          
+          <button class="w-full bg-primary text-on-primary font-headline-md text-[18px] py-3 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors h-12 flex justify-center items-center uppercase tracking-wider" (click)="checkout()">
+            Checkout
+          </button>
+          <p class="text-center font-body-md text-[12px] text-on-surface-variant mt-4">
+            Secure checkout powered by Los Defactos
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #emptyCart>
+    <div class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-12 text-center shadow-sm max-w-2xl mx-auto mt-8">
+      <span class="material-symbols-outlined text-[64px] text-outline mb-4">shopping_cart</span>
+      <h3 class="font-headline-lg text-headline-lg text-on-surface mb-4">Your cart is empty</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-8">Looks like you haven't added anything to your bag yet.</p>
+      <a routerLink="/products" class="inline-block bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors shadow-sm uppercase tracking-wider">Start Shopping</a>
+    </div>
+  </ng-template>
+
+</main>

@@ -1,0 +1,167 @@
+<main class="w-full max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-8 md:py-12">
+  <div class="mb-8">
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">My Profile</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant">Manage your account information and testimonials.</p>
+  </div>
+
+  <div *ngIf="profile" class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+
+    <!-- Profile Info Left -->
+    <aside class="w-full lg:w-1/3 bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-8 shadow-sm text-center">
+      <div class="w-32 h-32 mx-auto bg-surface-container-highest rounded-full overflow-hidden mb-6 flex items-center justify-center">
+        <span class="material-symbols-outlined text-[64px] text-outline">person</span>
+      </div>
+      <h3 class="font-headline-md text-headline-md text-on-surface font-bold mb-2">{{ profile.name }}</h3>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-6">{{ shippingLine }}</p>
+
+      <button
+        *ngIf="!isEditing"
+        type="button"
+        class="flex items-center justify-center gap-2 text-primary hover:text-on-primary-fixed-variant transition-colors mx-auto font-body-md font-semibold"
+        (click)="startEdit()"
+      >
+        <span class="material-symbols-outlined text-[20px]">edit</span> Edit Profile
+      </button>
+    </aside>
+
+    <!-- Profile Info Right -->
+    <div class="w-full lg:w-2/3 flex flex-col gap-8">
+
+      <!-- Information Box -->
+      <section class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-8 shadow-sm">
+        <h4 class="font-headline-md text-headline-md text-on-surface mb-6 border-b border-border-subtle pb-4">Personal Information</h4>
+
+        <form *ngIf="isEditing" [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="flex flex-col gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Name</label>
+              <input
+                type="text"
+                formControlName="name"
+                class="w-full bg-surface-container-low border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+              />
+            </div>
+            <div>
+              <label class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Phone</label>
+              <input
+                type="text"
+                formControlName="phone"
+                class="w-full bg-surface-container-low border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+              />
+            </div>
+            <div class="md:col-span-2">
+              <span class="block font-label-caps text-label-caps text-on-surface-variant mb-3 uppercase">Shipping Address</span>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                  <input
+                    type="text"
+                    formControlName="shippingStreet"
+                    placeholder="Street address"
+                    class="w-full bg-surface-container-low border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    formControlName="shippingCity"
+                    placeholder="City"
+                    class="w-full bg-surface-container-low border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                  />
+                </div>
+                <div>
+                  <input
+                    type="text"
+                    formControlName="shippingZip"
+                    placeholder="ZIP / Postal code"
+                    class="w-full bg-surface-container-low border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:ring-1 focus:ring-primary focus:border-primary outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="md:col-span-2">
+              <span class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Email</span>
+              <span class="font-body-md text-body-md text-on-surface-variant">{{ profile.email }}</span>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" class="px-6 py-3 font-body-md text-on-surface-variant border border-border-subtle rounded-DEFAULT hover:bg-surface-container transition-colors" (click)="cancelEdit()">
+              Cancel
+            </button>
+            <button type="submit" class="px-6 py-3 bg-primary text-on-primary font-label-caps text-label-caps rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider disabled:opacity-50" [disabled]="saving || profileForm.invalid">
+              {{ saving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </form>
+
+        <div *ngIf="!isEditing" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <span class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Email</span>
+            <span class="font-body-md text-body-md text-on-surface">{{ profile.email }}</span>
+          </div>
+          <div>
+            <span class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Phone</span>
+            <span class="font-body-md text-body-md text-on-surface">{{ profile.phone }}</span>
+          </div>
+          <div class="md:col-span-2">
+            <span class="block font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Shipping Address</span>
+            <span class="font-body-md text-body-md text-on-surface">{{ shippingLine }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Testimonials Section -->
+      <section class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-8 shadow-sm">
+        <h4 class="font-headline-md text-headline-md text-on-surface mb-6 border-b border-border-subtle pb-4">My Testimonials</h4>
+
+        <div *ngIf="profile.testimonials && profile.testimonials.length > 0; else noTestimonials" class="flex flex-col gap-4">
+          <div *ngFor="let testimonial of profile.testimonials" class="bg-surface-container-low border border-border-subtle rounded-DEFAULT p-6">
+            <div class="flex justify-between items-start mb-4">
+              <span class="font-label-caps text-label-caps text-on-surface-variant">{{ testimonial.createdAt | date: 'medium' }}</span>
+              <div class="flex items-center gap-4">
+                <span class="px-2.5 py-0.5 rounded-full text-[12px] font-bold uppercase tracking-wide"
+                      [ngClass]="testimonial.isPosted ? 'bg-[#E6F4EA] text-[#137333]' : 'bg-[#FCE8E6] text-[#C5221F]'">
+                  {{ testimonial.isPosted ? 'Posted' : 'Pending' }}
+                </span>
+                <button class="text-on-surface-variant hover:text-sale-red transition-colors" (click)="deleteTestimonial(testimonial._id)" aria-label="Delete Testimonial">
+                  <span class="material-symbols-outlined text-[20px]">delete</span>
+                </button>
+              </div>
+            </div>
+            <p class="font-body-md text-body-md text-on-surface italic">"{{ testimonial.message }}"</p>
+          </div>
+        </div>
+
+        <ng-template #noTestimonials>
+          <div class="text-center py-8">
+            <span class="material-symbols-outlined text-[48px] text-outline mb-4">reviews</span>
+            <p class="font-body-md text-body-md text-on-surface-variant">No testimonials yet. Share your experience!</p>
+          </div>
+        </ng-template>
+
+        <!-- Add Testimonial Form -->
+        <div class="mt-8 pt-8 border-t border-border-subtle">
+          <h4 class="font-headline-md text-[18px] text-on-surface mb-4">Add New Testimonial</h4>
+          <form [formGroup]="testimonialForm" (ngSubmit)="addTestimonial()" class="flex flex-col gap-4">
+            <div>
+              <textarea
+                class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md p-4 focus:ring-1 focus:ring-primary focus:border-primary outline-none resize-none h-32"
+                formControlName="message"
+                placeholder="Share your experience with Los Defactos..."
+                [ngClass]="{ 'border-sale-red': testimonialForm.get('message')?.touched && testimonialForm.get('message')?.invalid }"
+              ></textarea>
+              <div class="text-sale-red font-body-md text-[12px] mt-1 h-4" *ngIf="testimonialForm.get('message')?.touched && testimonialForm.get('message')?.invalid">
+                <span *ngIf="testimonialForm.get('message')?.hasError('required')">Message is required.</span>
+                <span *ngIf="testimonialForm.get('message')?.hasError('minlength')">Minimum 10 characters.</span>
+                <span *ngIf="testimonialForm.get('message')?.hasError('maxlength')">Maximum 500 characters.</span>
+              </div>
+            </div>
+            <button type="submit" class="self-end bg-primary text-on-primary font-label-caps text-label-caps px-6 py-3 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="testimonialForm.invalid">
+              Submit Testimonial
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</main>

@@ -1,0 +1,53 @@
+<div class="group bg-surface-container-lowest rounded-xl border border-border-subtle overflow-hidden hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)] transition-all duration-300 flex flex-col h-full cursor-pointer relative" [routerLink]="['/product', myProd.slug]">
+  
+  <!-- Image Container -->
+  <div class="relative aspect-[3/4] overflow-hidden bg-surface-container-low flex items-center justify-center p-3">
+    <!-- Dynamic Tags / Badges -->
+    <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
+      <div *ngFor="let tag of myProd.tags" class="bg-primary text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-sm">
+        {{ tag }}
+      </div>
+    </div>
+    
+    <img [alt]="myProd.title" class="w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-105" [src]="myProd.imgUrl | imageUrl"/>
+  </div>
+
+  <!-- Content Container -->
+  <div class="p-4 flex flex-col flex-grow">
+    <!-- Category (Placeholder or category if available, styled cleanly) -->
+    <span class="text-[11px] font-bold text-primary tracking-wider uppercase mb-1">
+      Special Collection
+    </span>
+    
+    <!-- Title -->
+    <h3 class="font-body-md text-sm text-on-surface line-clamp-2 mb-3 flex-grow font-medium group-hover:text-primary transition-colors duration-200">
+      {{ myProd.title }}
+    </h3>
+    
+    <!-- Price & Add to Cart -->
+    <div class="mt-auto flex flex-col gap-3">
+      <!-- Price Display -->
+      <div class="flex items-baseline gap-2">
+        <span class="font-price-md text-lg font-bold text-on-surface">
+          ${{ myProd.price }}
+        </span>
+        <span *ngIf="myProd.price < 100" class="text-xs text-outline line-through">
+          ${{ (myProd.price * 1.2) | number:'1.0-0' }}
+        </span>
+      </div>
+      
+      <!-- Elegant Add to Cart Button -->
+      <button 
+        class="w-full bg-primary hover:bg-primary-container text-on-primary hover:text-primary flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg font-medium text-sm transition-all duration-300 shadow-sm hover:shadow active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+        (click)="addItemToCart(myProd._id); $event.stopPropagation();" 
+        [disabled]="isAdding || !myProd.isInStock"
+        [attr.aria-label]="needsVariantSelection ? 'Choose product options' : 'Add to cart'"
+      >
+        <span *ngIf="!isAdding" class="material-symbols-outlined text-[18px]">{{ needsVariantSelection ? 'tune' : 'add_shopping_cart' }}</span>
+        <span *ngIf="isAdding" class="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
+        <span>{{ cartButtonLabel }}</span>
+      </button>
+    </div>
+  </div>
+
+</div>

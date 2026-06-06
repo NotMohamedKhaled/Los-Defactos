@@ -1,0 +1,380 @@
+<div class="mb-8 flex justify-between items-end">
+  <div>
+    <h1 class="font-headline-lg text-headline-lg text-on-background">Dashboard Overview</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant mt-1">Real-time store performance metrics.</p>
+  </div>
+  <div class="hidden sm:flex gap-2">
+    <button routerLink="/dashboard/orders" class="px-4 py-2 bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-label-caps text-label-caps text-on-surface hover:bg-surface-container-low transition-colors flex items-center gap-2">
+      <span class="material-symbols-outlined text-sm">receipt_long</span>
+      All Orders
+    </button>
+    <button routerLink="/dashboard/products" class="px-4 py-2 bg-primary text-on-primary rounded-DEFAULT font-label-caps text-label-caps hover:bg-primary-container transition-colors flex items-center gap-2">
+      <span class="material-symbols-outlined text-sm">inventory_2</span>
+      All Products
+    </button>
+  </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-gutter mb-8">
+  <div class="bg-surface-container-lowest border border-border-subtle rounded-lg p-6 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
+    <div class="flex justify-between items-start mb-4">
+      <div class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center text-primary">
+        <span class="material-symbols-outlined">inventory_2</span>
+      </div>
+    </div>
+    <h3 class="font-body-lg text-body-lg text-on-surface-variant mb-1">Active Products</h3>
+    <p class="font-display-lg text-display-lg text-on-background">{{ products.length }}</p>
+  </div>
+  <div class="bg-surface-container-lowest border border-border-subtle rounded-lg p-6 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
+    <div class="flex justify-between items-start mb-4">
+      <div class="w-12 h-12 bg-tertiary-fixed rounded-full flex items-center justify-center text-tertiary">
+        <span class="material-symbols-outlined">shopping_bag</span>
+      </div>
+    </div>
+    <h3 class="font-body-lg text-body-lg text-on-surface-variant mb-1">Order Count</h3>
+    <p class="font-display-lg text-display-lg text-on-background">{{ orderCount }}</p>
+  </div>
+  <div class="bg-surface-container-lowest border border-border-subtle rounded-lg p-6 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
+    <div class="flex justify-between items-start mb-4">
+      <div class="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-secondary">
+        <span class="material-symbols-outlined">warning</span>
+      </div>
+    </div>
+    <h3 class="font-body-lg text-body-lg text-on-surface-variant mb-1">Low Stock Items</h3>
+    <p class="font-display-lg text-display-lg text-on-background">{{ lowStockCount }}</p>
+  </div>
+  <div class="bg-surface-container-lowest border border-border-subtle rounded-lg p-6 hover:shadow-[0px_4px_12px_rgba(0,0,0,0.05)] transition-shadow">
+    <div class="flex justify-between items-start mb-4">
+      <div class="w-12 h-12 bg-error-container rounded-full flex items-center justify-center text-on-error-container">
+        <span class="material-symbols-outlined">inventory</span>
+      </div>
+    </div>
+    <h3 class="font-body-lg text-body-lg text-on-surface-variant mb-1">Out of Stock</h3>
+    <p class="font-display-lg text-display-lg text-on-background">{{ outOfStockCount }}</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+  <!-- Inventory Overview -->
+  <div class="lg:col-span-2 bg-surface-container-lowest border border-border-subtle rounded-lg overflow-hidden flex flex-col h-[600px]">
+    <div class="p-6 border-b border-border-subtle flex justify-between items-center bg-surface-bright">
+      <h2 class="font-headline-md text-headline-md text-on-background">Inventory Overview</h2>
+      <button routerLink="/dashboard/products" class="text-primary hover:text-primary-container font-label-caps text-label-caps flex items-center gap-1">
+        View All <span class="material-symbols-outlined text-sm">arrow_forward</span>
+      </button>
+    </div>
+
+    <div *ngIf="loadingProducts" class="flex-1 flex items-center justify-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+
+    <div class="overflow-x-auto flex-1" *ngIf="!loadingProducts">
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant sticky top-0 z-10">
+          <tr>
+            <th class="p-4 border-b border-border-subtle">Product Name</th>
+            <th class="p-4 border-b border-border-subtle">SKU</th>
+            <th class="p-4 border-b border-border-subtle text-right">Price</th>
+            <th class="p-4 border-b border-border-subtle text-right">Stock</th>
+            <th class="p-4 border-b border-border-subtle text-center">Status</th>
+            <th class="p-4 border-b border-border-subtle text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+          <tr *ngFor="let product of paginatedProducts" class="hover:bg-surface-bright transition-colors group">
+            <td class="p-4 font-semibold">{{ product.title }}</td>
+            <td class="p-4 text-on-surface-variant font-mono text-sm">{{ primarySku(product) }}</td>
+            <td class="p-4 text-right font-price-sm text-price-sm">${{ product.price }}</td>
+            <td class="p-4 text-right">
+              <span
+                class="inline-block px-2 py-1 rounded-DEFAULT text-sm font-medium"
+                [ngClass]="isLowStock(product) ? 'bg-tertiary-fixed text-tertiary' : 'bg-surface-container-low'"
+              >{{ totalStock(product) }}</span>
+            </td>
+            <td class="p-4 text-center">
+              <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" [ngClass]="getProductStatus(product).class">
+                {{ getProductStatus(product).label }}
+              </div>
+            </td>
+            <td class="p-4 text-right">
+              <button
+                type="button"
+                class="bg-surface-container-lowest text-secondary border border-secondary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-secondary hover:text-on-secondary transition-colors uppercase tracking-wider"
+                (click)="openRestockModal(product)"
+              >
+                Restock
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="products.length === 0">
+            <td colspan="6" class="p-8 text-center text-on-surface-variant">No products yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div *ngIf="!loadingProducts && products.length > 0" class="p-4 border-t border-border-subtle bg-surface-container-lowest flex items-center justify-between gap-4 shrink-0">
+      <span class="font-body-sm text-body-sm text-on-surface-variant">
+        {{ (productPage - 1) * productPageSize + 1 }}–{{ productPage * productPageSize > products.length ? products.length : productPage * productPageSize }} of {{ products.length }}
+      </span>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          class="w-9 h-9 flex items-center justify-center border border-border-subtle rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          (click)="prevProductPage()"
+          [disabled]="productPage === 1"
+          aria-label="Previous products page"
+        >
+          <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+        </button>
+        <span class="font-body-sm text-body-sm text-on-surface-variant min-w-[4.5rem] text-center">Page {{ productPage }} / {{ productTotalPages }}</span>
+        <button
+          type="button"
+          class="w-9 h-9 flex items-center justify-center border border-border-subtle rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:border-primary transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          (click)="nextProductPage()"
+          [disabled]="productPage === productTotalPages"
+          aria-label="Next products page"
+        >
+          <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Orders -->
+  <div class="lg:col-span-1 bg-surface-container-lowest border border-border-subtle rounded-lg flex flex-col h-[600px]">
+    <div class="p-6 border-b border-border-subtle bg-surface-bright">
+      <h2 class="font-headline-md text-headline-md text-on-background">Recent Orders</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-1 text-sm">Latest first</p>
+    </div>
+
+    <div *ngIf="loadingOrders" class="flex-1 flex items-center justify-center">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    </div>
+
+    <div class="flex-1 overflow-y-auto p-4 space-y-4" *ngIf="!loadingOrders">
+      <div
+        *ngFor="let order of paginatedOrders"
+        class="p-4 border border-border-subtle rounded-lg bg-surface-bright hover:bg-surface-container-low transition-colors cursor-pointer"
+        (click)="openOrderModal(order)"
+      >
+        <div class="flex justify-between items-start mb-2">
+          <span class="font-semibold text-on-surface">#{{ (order._id?.slice(-6) || '') | uppercase }}</span>
+          <span class="font-price-sm text-price-sm">${{ order.totalPrice }}</span>
+        </div>
+        <div class="flex justify-between items-center mb-3">
+          <span class="text-sm text-on-surface-variant">{{ order.user.name || order.user.email }}</span>
+          <span class="text-xs text-outline">{{ order.orderedAt | date:'short' }}</span>
+        </div>
+        <div class="w-full bg-surface-container-highest rounded-full h-1.5 mb-2">
+          <div class="h-1.5 rounded-full" [ngClass]="getOrderProgressClass(order.orderStat)" [style.width.%]="getOrderProgress(order.orderStat)"></div>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-medium capitalize" [ngClass]="order.orderStat === 'pending' ? 'text-sale-red' : 'text-primary'">{{ order.orderStat }}</span>
+          <span class="text-on-surface-variant">{{ getOrderItemCount(order) }} Item(s)</span>
+        </div>
+      </div>
+      <p *ngIf="orders.length === 0" class="text-center text-on-surface-variant py-8">No orders yet.</p>
+    </div>
+
+    <div *ngIf="!loadingOrders && orders.length > 0" class="px-4 py-3 border-t border-border-subtle bg-surface-container-lowest flex items-center justify-between gap-2 shrink-0">
+      <button
+        type="button"
+        class="w-8 h-8 flex items-center justify-center border border-border-subtle rounded-DEFAULT text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-30"
+        (click)="prevOrderPage()"
+        [disabled]="orderPage === 1"
+        aria-label="Previous orders page"
+      >
+        <span class="material-symbols-outlined text-[16px]">chevron_left</span>
+      </button>
+      <span class="font-body-sm text-body-sm text-on-surface-variant">{{ orderPage }} / {{ orderTotalPages }}</span>
+      <button
+        type="button"
+        class="w-8 h-8 flex items-center justify-center border border-border-subtle rounded-DEFAULT text-on-surface-variant hover:text-on-surface transition-colors disabled:opacity-30"
+        (click)="nextOrderPage()"
+        [disabled]="orderPage === orderTotalPages"
+        aria-label="Next orders page"
+      >
+        <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+      </button>
+    </div>
+
+    <div class="p-4 border-t border-border-subtle bg-surface-container-lowest shrink-0">
+      <button routerLink="/dashboard/orders" class="w-full py-2 border border-border-subtle rounded-DEFAULT font-label-caps text-label-caps text-on-surface hover:bg-surface-container-low transition-colors">
+        View All Orders
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Restock Modal -->
+<div *ngIf="showRestockModal && restockTarget" class="admin-modal-backdrop" adminModalBackdrop (backdropClose)="closeRestockModal()">
+  <div class="admin-modal-panel admin-modal-panel--md p-6" (mousedown)="$event.stopPropagation()">
+    <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+      <div>
+        <h2 class="font-headline-md text-headline-md text-on-background">Restock</h2>
+        <p class="font-body-md text-on-surface-variant mt-1">{{ restockTarget.title }}</p>
+      </div>
+      <button type="button" class="text-on-surface-variant hover:text-on-surface p-1" (click)="closeRestockModal()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <p class="font-body-sm text-on-surface-variant mb-4">Update stock quantities per variant. Total: {{ restockTotalStock }}</p>
+
+    <div class="space-y-3 max-h-[50vh] overflow-y-auto mb-6">
+      <div *ngFor="let variant of restockVariantMatrix; let i = index" class="flex items-center gap-4 p-3 border border-border-subtle rounded-DEFAULT bg-surface-bright">
+        <div class="flex-1 min-w-0">
+          <p class="font-body-md font-semibold text-on-surface">{{ getVariantLabel(variant) }}</p>
+          <p class="font-body-sm text-on-surface-variant truncate">SKU: {{ variant.sku }}</p>
+        </div>
+        <input
+          type="number"
+          min="0"
+          class="w-24 px-3 py-2 border border-border-subtle rounded-DEFAULT bg-surface-container-lowest text-center font-body-md text-on-surface"
+          [value]="variant.stock"
+          (input)="updateRestockVariantStock(i, $any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <button type="button" class="bg-surface-container-lowest text-on-surface-variant border border-border-subtle font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-surface-variant transition-colors uppercase tracking-wider" (click)="closeRestockModal()">Cancel</button>
+      <button type="button" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider" (click)="saveRestock()">Save Stock</button>
+    </div>
+  </div>
+</div>
+
+<!-- order modal -->
+<div
+  *ngIf="selectedOrder"
+  class="admin-modal-backdrop backdrop-blur-sm"
+  adminModalBackdrop
+  (backdropClose)="closeOrderModal()"
+>
+  <div
+    class="admin-modal-panel admin-modal-panel--md bg-surface-container-lowest rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden p-0"
+    (mousedown)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-border-subtle bg-surface-bright shrink-0">
+      <div>
+        <h2 class="font-headline-md text-headline-md text-on-background">Order Details</h2>
+        <p class="text-xs text-on-surface-variant font-mono mt-0.5">#{{ selectedOrder._id }}</p>
+      </div>
+      <button
+        type="button"
+        (click)="closeOrderModal()"
+        class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors"
+        aria-label="Close"
+      >
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- Meta Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 px-6 py-4 bg-surface-container-low border-b border-border-subtle shrink-0 text-sm">
+      <div>
+        <p class="text-on-surface-variant text-xs mb-0.5">Customer</p>
+        <p class="font-semibold text-on-surface">{{ selectedOrder.user.name || selectedOrder.user.email }}</p>
+      </div>
+      <div>
+        <p class="text-on-surface-variant text-xs mb-0.5">Status</p>
+        <span
+          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider"
+          [ngClass]="{
+            'bg-warning-container text-on-warning-container': selectedOrder.orderStat === 'pending',
+            'bg-tertiary-fixed text-tertiary': selectedOrder.orderStat === 'preparing',
+            'bg-primary-fixed text-primary': selectedOrder.orderStat === 'shipping',
+            'bg-secondary-fixed text-secondary': selectedOrder.orderStat === 'delivered' || selectedOrder.orderStat === 'recieved',
+            'bg-error-container text-on-error-container': selectedOrder.orderStat === 'cancelled' || selectedOrder.orderStat === 'rejected by admin'
+          }"
+        >{{ selectedOrder.orderStat }}</span>
+      </div>
+      <div>
+        <p class="text-on-surface-variant text-xs mb-0.5">Total</p>
+        <p class="font-bold text-primary font-price-sm">${{ selectedOrder.totalPrice }}</p>
+      </div>
+      <div>
+        <p class="text-on-surface-variant text-xs mb-0.5">Date</p>
+        <p class="font-semibold text-on-surface">{{ selectedOrder.orderedAt | date:'mediumDate' }}</p>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 border-b border-border-subtle bg-surface-container-lowest shrink-0">
+      <button
+        type="button"
+        (click)="toggleAddressInModal(); $event.stopPropagation()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-low border border-border-subtle rounded-DEFAULT text-sm font-body-md text-on-surface hover:bg-primary hover:text-on-primary hover:border-primary transition-colors"
+      >
+        <span class="material-symbols-outlined text-[18px]">{{ showAddressInModal ? 'expand_less' : 'location_on' }}</span>
+        {{ showAddressInModal ? 'Hide Address' : 'Show Address' }}
+      </button>
+      <div *ngIf="showAddressInModal" class="mt-3 p-4 rounded-lg border border-border-subtle bg-surface-bright text-sm text-on-surface space-y-1">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-2">Shipping Address</p>
+        <ng-container *ngIf="getSelectedOrderAddress().hasAddress; else noAddressDash">
+          <p *ngFor="let line of getSelectedOrderAddress().lines">{{ line }}</p>
+        </ng-container>
+        <ng-template #noAddressDash>
+          <p class="text-on-surface-variant">No shipping address recorded for this order.</p>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Products List -->
+    <div class="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+      <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">
+        Items ({{ selectedOrder.products.length || 0 }})
+      </p>
+
+      <div
+        *ngFor="let item of selectedOrder.products"
+        class="flex items-center gap-4 p-3 border border-border-subtle rounded-lg bg-surface-bright hover:bg-surface-container-low transition-colors"
+      >
+        <!-- Product Image -->
+        <div class="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-surface-container-low border border-border-subtle">
+          <img
+            *ngIf="item.product.imgUrl"
+            [src]="getProductImage(item.product.imgUrl)"
+            [alt]="item.product.title || 'Product'"
+            class="w-full h-full object-cover"
+          />
+          <div *ngIf="!item.product.imgUrl" class="w-full h-full flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-surface-variant text-2xl">image_not_supported</span>
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-on-surface truncate">{{ item.product.title || '—' }}</p>
+          <p class="text-sm text-on-surface-variant mt-0.5">
+            Unit price: <span class="font-medium text-on-surface">${{ item.price }}</span>
+          </p>
+        </div>
+
+        <!-- Qty + Line Total -->
+        <div class="text-right shrink-0">
+          <p class="text-xs text-on-surface-variant">Qty</p>
+          <p class="font-bold text-on-surface text-lg">{{ item.quantity }}</p>
+          <p class="text-xs text-primary font-semibold">${{ item.price * item.quantity }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedOrder.products?.length" class="text-center py-8 text-on-surface-variant">
+        No items found.
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="px-6 py-4 border-t border-border-subtle bg-surface-bright shrink-0 flex justify-end">
+      <button
+        type="button"
+        (click)="closeOrderModal()"
+        class="px-6 py-2 bg-primary text-on-primary font-label-caps text-sm rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+<div class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-6 shadow-sm hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow duration-300 w-full mb-4">
+  <div class="flex justify-between items-center cursor-pointer group" (click)="toggleFaq()">
+    <h3 class="font-headline-md text-[18px] font-bold text-on-surface group-hover:text-primary transition-colors pr-8">{{ myFaq.question }}</h3>
+    <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">
+      {{ isOpen ? 'remove' : 'add' }}
+    </span>
+  </div>
+  <div class="mt-4 pt-4 border-t border-border-subtle overflow-hidden transition-all duration-300" 
+       [ngStyle]="{'max-height': isOpen ? '500px' : '0', 'opacity': isOpen ? '1' : '0', 'margin-top': isOpen ? '16px' : '0', 'padding-top': isOpen ? '16px' : '0', 'border-color': isOpen ? '' : 'transparent'}">
+    <p class="font-body-md text-on-surface-variant leading-relaxed">{{ myFaq.answer }}</p>
+  </div>
+</div>

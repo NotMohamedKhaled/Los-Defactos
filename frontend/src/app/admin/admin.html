@@ -1,0 +1,106 @@
+<div class="bg-surface-gray text-on-surface font-body-md min-h-screen flex">
+  <!-- SideNavBar -->
+  <nav aria-label="Sidebar" class="bg-surface-container-low border-r border-border-subtle flex flex-col gap-base p-4 fixed h-full h-screen w-64 left-0 z-40 hidden md:flex">
+    <div class="mb-8 flex flex-col items-center mt-4">
+      <div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center mb-4 overflow-hidden">
+        <span class="material-symbols-outlined text-[32px]">admin_panel_settings</span>
+      </div>
+      <h2 class="font-headline-md text-headline-md text-primary">Admin Console</h2>
+      <p class="font-label-caps text-label-caps text-secondary mt-1">Los Defactos Management Portal</p>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto w-full">
+      <ul class="space-y-2 w-full">
+        <li>
+          <a routerLink="/dashboard" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" [routerLinkActiveOptions]="{exact: true}" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/users" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">people</span>
+            <span>User Management</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/products" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span>Product Management</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/categories" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">category</span>
+            <span>Categories</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/subcategories" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">account_tree</span>
+            <span>Subcategories</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/orders" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span>Order Status</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/faq" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">help</span>
+            <span>FAQs</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/dashboard/testimonials" routerLinkActive="bg-secondary-container text-on-secondary-container translate-x-1" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full">
+            <span class="material-symbols-outlined">reviews</span>
+            <span>Testimonials</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/home" class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-variant transition-colors rounded-lg font-label-caps text-label-caps w-full mt-auto pt-8 border-t border-border-subtle mt-4">
+            <span class="material-symbols-outlined">store</span>
+            <span>View Store</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <div class="flex-1 flex flex-col min-w-0 md:ml-64">
+    <!-- TopNavBar -->
+    <header class="bg-surface-container-lowest border-b border-border-subtle flex justify-between items-center px-4 md:px-8 h-16 w-full sticky top-0 z-30">
+      <div class="flex items-center flex-1">
+        <div class="md:hidden mr-4">
+          <button class="text-on-surface p-2">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+        </div>
+        <div class="relative w-full max-w-md hidden md:block">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 transform -translate-y-1/2 text-outline">search</span>
+          <input class="w-full pl-10 pr-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-body-md placeholder-outline" placeholder="Search orders, products..." type="text"/>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 text-primary">
+         <div class="relative hidden sm:flex flex-col items-end">
+          <span class="font-body-md text-on-surface-variant leading-tight">Hi, {{ username }}</span>
+      </div>
+        <button class="p-2 hover:text-primary-container transition-colors relative">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="absolute top-1 right-1 w-2 h-2 bg-sale-red rounded-full"></span>
+        </button>
+        <a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer font-body-md font-medium" (click)="logout()" RouterLink="/login" aria-label="Logout">
+          Logout
+        </a>
+      </div>
+    </header>
+
+    <!-- Main Dashboard Canvas -->
+    <main class="flex-1 p-4 md:p-8 overflow-x-hidden">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

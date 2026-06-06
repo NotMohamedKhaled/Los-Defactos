@@ -1,0 +1,191 @@
+<div class="w-full max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-8 md:py-12 flex-grow" *ngIf="!loading && product; else loadingOrEmpty">
+
+  <!-- Breadcrumbs -->
+  <nav aria-label="Breadcrumb" class="flex items-center gap-2 font-body-md text-body-md text-on-surface-variant mb-6 flex-wrap">
+    <a class="hover:underline hover:text-primary transition-colors shrink-0" routerLink="/home">Home</a>
+    <span class="material-symbols-outlined text-[16px] shrink-0">chevron_right</span>
+    <a class="hover:underline hover:text-primary transition-colors shrink-0" routerLink="/products">Products</a>
+    <ng-container *ngIf="categoryName">
+      <span class="material-symbols-outlined text-[16px] shrink-0">chevron_right</span>
+      <a class="hover:underline hover:text-primary transition-colors shrink-0" routerLink="/products" [queryParams]="categoryQueryParams">{{ categoryName }}</a>
+    </ng-container>
+    <ng-container *ngIf="subCategoryName">
+      <span class="material-symbols-outlined text-[16px] shrink-0">chevron_right</span>
+      <a class="hover:underline hover:text-primary transition-colors shrink-0" routerLink="/products" [queryParams]="subCategoryQueryParams">{{ subCategoryName }}</a>
+    </ng-container>
+    <span class="material-symbols-outlined text-[16px] shrink-0">chevron_right</span>
+    <span class="text-on-surface font-semibold break-words min-w-0">{{ product.title }}</span>
+  </nav>
+
+  <!-- Product Split Layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter lg:gap-12 mb-section-gap">
+    
+    <!-- Left: Image -->
+    <div class="lg:col-span-7">
+      <div class="bg-surface-container-lowest border border-border-subtle rounded-lg overflow-hidden aspect-[3/4] relative group">
+        <img [alt]="product.title"
+             class="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-105"
+             [src]="product.imgUrl | imageUrl"/>
+        <span *ngIf="!product.isInStock" class="absolute top-4 left-4 bg-on-surface text-surface-container-lowest font-label-caps text-label-caps px-3 py-1 rounded">OUT OF STOCK</span>
+      </div>
+    </div>
+
+    <!-- Right: Info -->
+    <div class="lg:col-span-5 flex flex-col pt-2 lg:pt-0">
+      <div class="mb-4">
+        <h1 class="font-headline-lg text-headline-lg text-on-surface mb-3">{{ product.title }}</h1>
+        <div class="flex items-baseline gap-3">
+          <span class="font-price-lg text-price-lg text-on-surface">${{ product.price }}</span>
+        </div>
+      </div>
+
+      <!-- Stock status -->
+      <div class="mb-6">
+        <span class="inline-flex items-center gap-1 font-body-md text-body-md font-semibold"
+              [ngClass]="isVariantInStock() ? (isVariantLowStock() ? 'text-[#B06000]' : 'text-[#137333]') : 'text-sale-red'">
+          <span class="material-symbols-outlined text-[18px]">{{ isVariantInStock() ? (isVariantLowStock() ? 'warning' : 'check_circle') : 'cancel' }}</span>
+          {{ stockStatusMessage }}
+        </span>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-8 font-body-lg text-body-lg text-on-surface-variant border-t border-border-subtle pt-6">
+        <p>{{ product.desc }}</p>
+      </div>
+
+      <!-- Color Options -->
+      <div *ngIf="availableColors.length" class="mb-6">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">
+          Color: <span class="text-on-surface font-semibold normal-case">{{ selectedColor }}</span>
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <button *ngFor="let color of availableColors"
+                  type="button"
+                  class="color-option flex flex-col items-center gap-1.5 min-w-[56px]"
+                  [disabled]="!isColorAvailable(color)"
+                  [attr.aria-label]="color + (isColorAvailable(color) ? '' : ' — out of stock')"
+                  (click)="selectColor(color)">
+            <span class="color-swatch relative"
+                  [class.color-swatch--selected]="selectedColor === color"
+                  [class.color-swatch--disabled]="!isColorAvailable(color)"
+                  [class.color-swatch--light]="isLightColor(color)"
+                  [style.background-color]="getColorHex(color)">
+              <span *ngIf="!isColorAvailable(color)" class="color-swatch__strike"></span>
+            </span>
+            <span class="font-body-sm text-body-sm text-center leading-tight"
+                  [ngClass]="!isColorAvailable(color)
+                    ? 'text-on-surface-variant line-through opacity-60'
+                    : selectedColor === color ? 'text-primary font-semibold' : 'text-on-surface'">
+              {{ color }}
+            </span>
+            <span *ngIf="!isColorAvailable(color)" class="font-label-caps text-[10px] text-sale-red uppercase tracking-wide">
+              Out of stock
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Size Options -->
+      <div *ngIf="availableSizes.length" class="mb-8">
+        <p class="font-label-caps text-label-caps text-on-surface-variant mb-3">Size</p>
+        <div class="flex flex-wrap gap-2">
+          <button *ngFor="let size of availableSizes"
+                  type="button"
+                  class="min-w-[48px] px-4 py-2 rounded-lg border font-body-md text-body-md transition-colors relative"
+                  [disabled]="!isSizeAvailable(size, selectedColor)"
+                  [ngClass]="selectedSize === size
+                    ? 'border-primary bg-primary-container text-primary font-semibold'
+                    : isSizeAvailable(size, selectedColor)
+                      ? 'border-border-subtle bg-surface-container-lowest text-on-surface hover:border-primary'
+                      : 'border-border-subtle bg-surface-container text-on-surface-variant opacity-50 cursor-not-allowed line-through'"
+                  (click)="selectSize(size)">
+            {{ size }}
+            <span *ngIf="availableColors.length && !isSizeAvailable(size, selectedColor)"
+                  class="sr-only">Out of stock for {{ selectedColor }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Keywords -->
+      <div *ngIf="product.keywords?.length" class="flex flex-wrap gap-2 mb-8">
+        <span *ngFor="let kw of product.keywords"
+              class="bg-surface-container text-on-surface-variant font-label-caps text-label-caps px-3 py-1 rounded-full border border-border-subtle">
+          {{ kw }}
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-col gap-3 mt-auto relative">
+        <span *ngIf="addedMessage" class="absolute -top-8 left-1/2 -translate-x-1/2 bg-surface-container-highest text-on-surface font-label-caps text-label-caps px-4 py-2 rounded shadow-md z-10">{{ addedMessage }}</span>
+        
+        <button class="w-full h-12 bg-primary text-on-primary font-body-lg text-body-lg font-semibold rounded-lg hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                [disabled]="!isVariantInStock()"
+                (click)="addToCart()">
+          <span class="material-symbols-outlined text-[20px]">shopping_bag</span>
+          {{ isVariantInStock() ? 'Add to Cart' : 'Unavailable' }}
+        </button>
+        <button class="w-full h-12 bg-surface-container-lowest border border-border-subtle text-on-surface font-body-lg text-body-lg font-semibold rounded-lg hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined text-[20px]">favorite_border</span>
+          Add to Wishlist
+        </button>
+      </div>
+
+      <!-- Shipping info -->
+      <div class="mt-6 p-4 bg-surface-container-low rounded-lg border border-border-subtle">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-primary text-[20px]">local_shipping</span>
+          <div>
+            <p class="font-body-md text-body-md font-semibold text-on-surface">Free Standard Shipping on orders over $50</p>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Easy 30-day returns.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Details Accordion -->
+  <div class="max-w-[800px] mx-auto mb-section-gap border-t border-border-subtle">
+    <details class="group py-6 border-b border-border-subtle" open>
+      <summary class="flex justify-between items-center font-headline-md text-headline-md cursor-pointer list-none">
+        <span>Product Specifications</span>
+        <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+      </summary>
+      <div class="mt-4 font-body-lg text-body-lg text-on-surface-variant">
+        <ul *ngIf="product.specs?.length; else noSpecs" class="space-y-2 list-disc list-inside">
+          <li *ngFor="let spec of product.specs">{{ spec }}</li>
+        </ul>
+        <ng-template #noSpecs>
+          <p>No specifications available for this product.</p>
+        </ng-template>
+      </div>
+    </details>
+    <details class="group py-6 border-b border-border-subtle">
+      <summary class="flex justify-between items-center font-headline-md text-headline-md cursor-pointer list-none">
+        <span>Shipping &amp; Returns</span>
+        <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+      </summary>
+      <div class="mt-4 font-body-lg text-body-lg text-on-surface-variant space-y-3">
+        <p>Free standard shipping on orders over $50. Expedited shipping available at checkout.</p>
+        <p>We accept returns of unworn items in original condition within 30 days of delivery.</p>
+      </div>
+    </details>
+  </div>
+
+</div>
+
+<ng-template #loadingOrEmpty>
+  <div class="w-full max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-24 flex items-center justify-center">
+    <div *ngIf="loading" class="flex flex-col items-center gap-4 text-on-surface-variant">
+      <span class="material-symbols-outlined text-[48px] animate-pulse">hourglass_empty</span>
+      <p class="font-body-lg text-body-lg">Loading product...</p>
+    </div>
+    <div *ngIf="!loading && !product" class="flex flex-col items-center gap-4 text-on-surface-variant text-center">
+      <span class="material-symbols-outlined text-[64px]">search_off</span>
+      <h2 class="font-headline-lg text-headline-lg text-on-surface">Product Not Found</h2>
+      <p class="font-body-lg text-body-lg mb-6">The product you're looking for doesn't exist or was removed.</p>
+      <a routerLink="/products" class="bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider">
+        Back to Products
+      </a>
+    </div>
+  </div>
+</ng-template>

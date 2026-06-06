@@ -1,0 +1,169 @@
+<header class="bg-surface-container-lowest sticky top-0 z-50 border-b border-border-subtle w-full">
+  <div class="flex justify-between items-center w-full px-grid-margin-mobile md:px-grid-margin-desktop max-w-[1440px] mx-auto h-[80px]">
+
+    <div class="flex items-center gap-8">
+      <a class="font-headline-lg text-headline-lg font-bold text-primary uppercase" routerLink="/">LOS DEFACTOS</a>
+
+      <!-- Desktop Nav with Mega-Menu -->
+      <nav class="hidden md:flex gap-1 items-center h-full">
+        @for (cat of navCategories; track cat.name) {
+          <div
+            class="relative h-[80px] flex items-center"
+            (mouseenter)="openMegaMenu(cat.name)"
+            (mouseleave)="closeMegaMenu()">
+
+            <!-- Category trigger -->
+            <a
+              routerLink="/products"
+              [queryParams]="{category: cat.name}"
+              class="flex items-center gap-1 px-4 font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer duration-200"
+              (click)="closeMegaMenu()">
+              {{ cat.name }}
+              @if (cat.subCategories.length > 0) {
+                <span class="material-symbols-outlined text-[16px] transition-transform duration-200"
+                  [class.rotate-180]="hoveredCategory === cat.name">
+                  expand_more
+                </span>
+              }
+            </a>
+
+            <!-- Mega-menu dropdown -->
+            @if (cat.subCategories.length > 0) {
+              <div
+                class="absolute top-[80px] left-0 bg-surface-container-lowest border border-border-subtle shadow-xl rounded-b-lg min-w-[200px] py-3 transition-all duration-200"
+                [class.opacity-0]="hoveredCategory !== cat.name"
+                [class.pointer-events-none]="hoveredCategory !== cat.name"
+                [class.opacity-100]="hoveredCategory === cat.name"
+                [class.pointer-events-auto]="hoveredCategory === cat.name"
+                [class.-translate-y-2]="hoveredCategory !== cat.name"
+                [class.translate-y-0]="hoveredCategory === cat.name">
+
+                <!-- All in category link -->
+                <a
+                  routerLink="/products"
+                  [queryParams]="{category: cat.name}"
+                  (click)="closeMegaMenu()"
+                  class="flex items-center gap-2 px-5 py-2 font-body-md text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors whitespace-nowrap">
+                  <span class="material-symbols-outlined text-[14px]">apps</span>
+                  All {{ cat.name }}
+                </a>
+                <div class="border-t border-border-subtle my-1 mx-4"></div>
+
+                @for (sub of cat.subCategories; track sub._id) {
+                  <a
+                    routerLink="/products"
+                    [queryParams]="{category: cat.name, subCategory: sub._id}"
+                    (click)="closeMegaMenu()"
+                    class="flex items-center gap-2 px-5 py-2 font-body-md text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors whitespace-nowrap">
+                    <span class="material-symbols-outlined text-[14px]">chevron_right</span>
+                    {{ sub.name }}
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <a class="px-4 font-body-md text-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer duration-200"
+           routerLink="/products">All Products</a>
+      </nav>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <!-- Auth -->
+      <ng-container *ngIf="!isLoggedIn">
+        <a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer font-body-md font-medium" routerLink="/cart">
+        Cart
+      </a>
+        <a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer font-body-md font-medium" routerLink="/login" aria-label="Login">
+          Login
+        </a>
+        
+      </ng-container>
+
+      <ng-container *ngIf="isLoggedIn">
+        <div
+          class="relative hidden sm:block"
+          (mouseenter)="userMenuOpen = true"
+          (mouseleave)="userMenuOpen = false"
+        >
+          <span class="flex items-center gap-1 font-body-md text-on-surface-variant hover:text-primary transition-colors cursor-pointer select-none py-1">
+            Hi, {{ username }}
+            <span class="material-symbols-outlined text-[16px] transition-transform duration-200"
+                  [class.rotate-180]="userMenuOpen">expand_more</span>
+          </span>
+          <div
+            class="absolute top-full right-0 pt-2 min-w-[160px]"
+            [class.invisible]="!userMenuOpen"
+            [class.pointer-events-none]="!userMenuOpen"
+          >
+            <div
+              class="bg-surface-container-lowest border border-border-subtle shadow-xl rounded-DEFAULT py-2"
+            >
+              <a *ngIf="isAdmin" routerLink="/dashboard" class="flex items-center gap-2 px-4 py-2 font-body-md text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[16px]">dashboard</span>
+                Dashboard
+              </a>
+              <a routerLink="/orders" class="flex items-center gap-2 px-4 py-2 font-body-md text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+                Orders
+              </a>
+              <a routerLink="/profile" class="flex items-center gap-2 px-4 py-2 font-body-md text-body-md text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
+                <span class="material-symbols-outlined text-[16px]">person</span>
+                Profile
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <span class="sm:hidden font-body-md text-on-surface-variant">Hi, {{ username }}</span>
+
+        <a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer font-body-md font-medium" routerLink="/cart">
+          Cart
+        </a>
+
+        <a class="text-on-surface-variant hover:text-primary transition-colors cursor-pointer font-body-md font-medium" (click)="logout()" aria-label="Logout">
+          Logout
+        </a>
+      </ng-container>
+
+      
+
+      <!-- Mobile Menu Toggle -->
+      <button class="md:hidden text-on-surface-variant hover:text-primary transition-colors" (click)="toggleMenu()">
+        <span class="material-symbols-outlined text-[24px]">menu</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Dropdown Navigation -->
+  <div class="md:hidden bg-surface-container-lowest border-t border-border-subtle shadow-md absolute w-full left-0 transition-all overflow-hidden"
+       [ngStyle]="{'max-height': isMenuOpen ? '400px' : '0', 'opacity': isMenuOpen ? '1' : '0'}">
+    <nav class="flex flex-col p-4 gap-1">
+      @for (cat of navCategories; track cat.name) {
+        <a class="font-body-md text-on-surface hover:text-primary py-2 px-3 rounded hover:bg-surface-container transition-colors"
+           routerLink="/products" [queryParams]="{category: cat.name}" (click)="closeMenu()">{{ cat.name }}</a>
+        @for (sub of cat.subCategories; track sub._id) {
+          <a class="font-body-sm text-on-surface-variant hover:text-primary py-1.5 px-6 rounded hover:bg-surface-container transition-colors"
+             routerLink="/products" [queryParams]="{category: cat.name, subCategory: sub._id}" (click)="closeMenu()">
+            └ {{ sub.name }}
+          </a>
+        }
+      }
+      <div class="border-t border-border-subtle my-2"></div>
+      <a class="font-body-md text-on-surface hover:text-primary py-2 px-3 rounded hover:bg-surface-container transition-colors"
+         routerLink="/products" (click)="closeMenu()">All Products</a>
+      @if (isLoggedIn) {
+        <div class="border-t border-border-subtle my-2"></div>
+        <a class="font-body-md text-on-surface hover:text-primary py-2 px-3 rounded hover:bg-surface-container transition-colors"
+           routerLink="/orders" (click)="closeMenu()">Orders</a>
+        <a class="font-body-md text-on-surface hover:text-primary py-2 px-3 rounded hover:bg-surface-container transition-colors"
+           routerLink="/profile" (click)="closeMenu()">Profile</a>
+        @if (isAdmin) {
+          <a class="font-body-md text-on-surface hover:text-primary py-2 px-3 rounded hover:bg-surface-container transition-colors"
+             routerLink="/dashboard" (click)="closeMenu()">Dashboard</a>
+        }
+      }
+    </nav>
+  </div>
+</header>

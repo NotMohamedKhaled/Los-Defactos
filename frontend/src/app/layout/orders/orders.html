@@ -1,0 +1,30 @@
+<main class="w-full max-w-[1440px] mx-auto px-grid-margin-mobile md:px-grid-margin-desktop py-8 md:py-12 min-h-screen">
+  <div class="mb-8">
+    <h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-on-surface mb-2">Order History</h1>
+    <p class="font-body-md text-body-md text-on-surface-variant">View and manage your recent orders.</p>
+  </div>
+
+  <div class="flex flex-col gap-6 w-full lg:w-3/4 mx-auto">
+    @if (loading) {
+      <div class="text-center py-12 font-body-md text-on-surface-variant">Loading orders...</div>
+    } @else if (orders.length === 0) {
+      <div class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT p-12 text-center shadow-sm">
+        <span class="material-symbols-outlined text-[64px] text-outline mb-4">inventory_2</span>
+        <h3 class="font-headline-lg text-headline-lg text-on-surface mb-4">No orders yet</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-8">You haven't placed any orders. Start shopping to see them here.</p>
+        <a routerLink="/products" class="inline-block bg-primary text-on-primary font-label-caps text-label-caps px-8 py-4 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors shadow-sm uppercase tracking-wider">Start Shopping</a>
+      </div>
+    } @else {
+      @for(order of orders; track order._id){
+        <app-order [myOrder]="order"></app-order>
+      }
+
+      <app-admin-pagination
+        [page]="page"
+        [pageSize]="pageSize"
+        [totalItems]="totalItems"
+        (pageChange)="onPageChange($event)"
+      />
+    }
+  </div>
+</main>

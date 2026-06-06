@@ -1,0 +1,97 @@
+<main class="w-full min-h-[calc(100vh-200px)] flex items-center justify-center py-12 px-grid-margin-mobile">
+  <div class="w-full max-w-lg bg-surface-container-lowest border border-border-subtle rounded-DEFAULT shadow-lg p-8">
+    
+    <div class="text-center mb-8">
+      <h2 class="font-headline-lg text-headline-lg font-bold text-on-surface uppercase tracking-tight">Create an account</h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mt-2">Join Los Defactos today.</p>
+    </div>
+
+    <div *ngIf="message" class="mb-6 p-4 rounded-DEFAULT font-body-md text-body-md" 
+         [ngClass]="{
+           'bg-[#FCE8E6] text-[#C5221F] border border-[#FAD2CF]': messageType === 'error',
+           'bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6]': messageType === 'success',
+           'bg-[#FEF7E0] text-[#E37400] border border-[#FEEFC3]': messageType === 'warning'
+         }">
+      {{ message }}
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5" novalidate>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase" for="name">Your Name</label>
+          <input
+            type="text"
+            id="name"
+            autocomplete="name"
+            maxlength="80"
+            class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            [class.border-sale-red]="invalid('name')"
+            formControlName="name"
+            placeholder="Enter your name"
+          />
+          <app-form-field-error [control]="registerForm.get('name')"></app-form-field-error>
+        </div>
+
+        <div>
+          <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase" for="phone">Phone</label>
+          <input
+            type="tel"
+            id="phone"
+            autocomplete="tel"
+            maxlength="20"
+            class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+            [class.border-sale-red]="invalid('phone')"
+            formControlName="phone"
+            placeholder="Phone number"
+          />
+          <app-form-field-error [control]="registerForm.get('phone')"></app-form-field-error>
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase" for="email">Your Email</label>
+        <input
+          type="email"
+          id="email"
+          autocomplete="email"
+          maxlength="120"
+          class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          [class.border-sale-red]="invalid('email')"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
+        <app-form-field-error [control]="registerForm.get('email')"></app-form-field-error>
+      </div>
+
+      <div>
+        <label class="block font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase" for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          autocomplete="new-password"
+          maxlength="128"
+          class="w-full bg-surface-container-lowest border border-border-subtle rounded-DEFAULT font-body-md text-body-md px-4 py-3 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+          [class.border-sale-red]="invalid('password')"
+          formControlName="password"
+          placeholder="At least 8 characters, letter + number"
+        />
+        <app-form-field-error [control]="registerForm.get('password')"></app-form-field-error>
+      </div>
+
+      <button
+        type="submit"
+        class="w-full bg-primary text-on-primary font-label-caps text-[14px] py-4 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+        [disabled]="registerForm.invalid"
+      >
+        Create Account
+      </button>
+
+      <p class="text-center font-body-md text-body-md text-on-surface-variant mt-2">
+        Already have an account? 
+        <a routerLink="/login" class="text-primary font-bold hover:underline">Login here</a>
+      </p>
+
+    </form>
+  </div>
+</main>

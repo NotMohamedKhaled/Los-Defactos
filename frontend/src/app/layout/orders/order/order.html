@@ -1,0 +1,82 @@
+<div class="bg-surface-container-lowest border border-border-subtle rounded-DEFAULT shadow-sm overflow-hidden hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition-shadow duration-200">
+  
+  <div class="bg-surface-container-low border-b border-border-subtle p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8 w-full sm:w-auto text-left">
+      <div>
+        <p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Order Placed</p>
+        <p class="font-body-md text-body-md text-on-surface font-semibold">{{ myOrder.orderedAt | date }}</p>
+      </div>
+      <div>
+        <p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Total</p>
+        <p class="font-body-md text-body-md text-on-surface font-semibold">${{ myOrder.totalPrice }}</p>
+      </div>
+      <div>
+        <p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Status</p>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-bold uppercase tracking-wide"
+              [ngClass]="{
+                'bg-primary-container text-on-primary-container': myOrder.orderStat !== 'pending',
+                'bg-surface-variant text-on-surface-variant': myOrder.orderStat === 'pending'
+              }">
+          {{ myOrder.orderStat }}
+        </span>
+      </div>
+      <div>
+        <p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Order ID</p>
+        <p class="font-body-md text-body-md text-on-surface font-mono">{{ myOrder._id | slice:-8 | uppercase }}</p>
+      </div>
+    </div>
+    
+    <div class="mt-4 sm:mt-0 flex flex-wrap gap-2 justify-end">
+      <button
+        type="button"
+        class="bg-surface-container-lowest text-primary border border-primary font-body-md text-body-md px-4 py-2 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors"
+        (click)="toggleAddress()"
+      >
+        <span class="material-symbols-outlined text-[18px] align-middle mr-1">{{ showAddress ? 'expand_less' : 'location_on' }}</span>
+        {{ showAddress ? 'Hide Address' : 'Show Address' }}
+      </button>
+      <button
+        *ngIf="myOrder.orderStat === 'pending'"
+        type="button"
+        class="bg-surface-container-highest text-error font-body-md text-body-md px-4 py-2 rounded-DEFAULT hover:bg-error-container hover:text-on-error-container transition-colors border border-border-subtle"
+        (click)="cancelOrder(myOrder._id!)"
+      >
+        Cancel Order
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="showAddress" class="px-6 py-4 bg-surface-container-low border-b border-border-subtle">
+    <p class="font-label-caps text-[10px] text-on-surface-variant uppercase tracking-wider mb-2">Shipping Address</p>
+    @if (addressView.hasAddress) {
+      <div class="font-body-md text-body-md text-on-surface space-y-1">
+        @for (line of addressView.lines; track line) {
+          <p>{{ line }}</p>
+        }
+      </div>
+    } @else {
+      <p class="font-body-md text-body-md text-on-surface-variant">No shipping address recorded for this order.</p>
+    }
+  </div>
+
+  <div class="p-6">
+    <div class="flex flex-col gap-6">
+      @for(item of myOrder.products; track item._id){
+        <div class="flex gap-4">
+          <div class="w-24 h-24 sm:w-32 sm:h-32 flex-shrink-0 bg-surface-container-low rounded-DEFAULT border border-border-subtle overflow-hidden">
+            <img [src]="item.product.imgUrl | imageUrl" alt="{{item.product.title}}" class="w-full h-full object-cover">
+          </div>
+          <div class="flex flex-col justify-center">
+            <h4 class="font-headline-md text-headline-md text-on-surface hover:text-primary transition-colors cursor-pointer" routerLink="/product/{{item.product._id}}">{{item.product.title}}</h4>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Delivery: {{ myOrder.delivery.date | date }}</p>
+            <div class="flex items-center gap-4 mt-2">
+              <span class="font-price-sm text-price-sm text-on-surface">${{item.price}}</span>
+              <span class="font-body-md text-body-md text-on-surface-variant">Qty: {{item.quantity}}</span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

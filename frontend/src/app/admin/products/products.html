@@ -1,0 +1,242 @@
+<div class="p-6 bg-surface-container-lowest border border-border-subtle rounded-lg shadow-sm">
+  <div class="mb-4 flex justify-between items-center border-b border-border-subtle pb-4">
+    <h2 class="font-headline-md text-headline-md text-on-background">Product Management</h2>
+    <button
+      type="button"
+      class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider flex items-center gap-2"
+      (click)="openAddModal()"
+    >
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Add Product
+    </button>
+  </div>
+
+  <div *ngIf="loadingProducts" class="flex justify-center my-8">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+
+  <div class="overflow-x-auto" *ngIf="!loadingProducts">
+    <table class="w-full text-left border-collapse">
+      <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+        <tr>
+          <th class="p-4 border-b border-border-subtle">Product</th>
+          <th class="p-4 border-b border-border-subtle">Price</th>
+          <th class="p-4 border-b border-border-subtle">Stock</th>
+          <th class="p-4 border-b border-border-subtle text-center">Status</th>
+          <th class="p-4 border-b border-border-subtle text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="font-body-md text-body-md text-on-surface divide-y divide-border-subtle">
+        <tr *ngFor="let product of products" class="hover:bg-surface-bright transition-colors group">
+          <td class="p-4 flex items-center gap-4 font-semibold">
+            <img
+              [src]="product.imgUrl | imageUrl"
+              alt="{{ product.title }}"
+              class="w-12 h-12 object-cover rounded-DEFAULT border border-border-subtle"
+            />
+            {{ product.title }}
+          </td>
+          <td class="p-4 font-price-sm text-price-sm">${{ product.price }}</td>
+          <td class="p-4">{{ product.stock }}</td>
+          <td class="p-4 text-center">
+            <div
+              [ngClass]="{
+                'bg-primary-fixed text-primary': !product.isDeleted,
+                'bg-error-container text-on-error-container': product.isDeleted
+              }"
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+            >
+              {{ product.isDeleted ? 'Deleted' : 'Active' }}
+            </div>
+          </td>
+          <td class="p-4 text-right space-x-2">
+            <ng-container *ngIf="product.isDeleted; else normalActions">
+              <button
+                class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider"
+                (click)="restoreProduct(product._id)"
+              >
+                Restore
+              </button>
+            </ng-container>
+
+            <ng-template #normalActions>
+              <button
+                class="bg-surface-container-lowest text-secondary border border-secondary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-secondary hover:text-on-secondary transition-colors uppercase tracking-wider"
+                (click)="openRestockModal(product)"
+              >
+                Restock
+              </button>
+              <button
+                class="bg-surface-container-lowest text-primary border border-primary font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-primary hover:text-on-primary transition-colors uppercase tracking-wider"
+                (click)="editProduct(product)"
+              >
+                Edit
+              </button>
+              <button
+                class="bg-surface-container-lowest text-sale-red border border-sale-red font-label-caps text-[12px] py-1 px-3 rounded-DEFAULT hover:bg-sale-red hover:text-white transition-colors uppercase tracking-wider"
+                (click)="deleteProduct(product._id)"
+              >
+                Delete
+              </button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-admin-pagination
+    *ngIf="!loadingProducts"
+    [page]="page"
+    [pageSize]="pageSize"
+    [totalItems]="totalItems"
+    (pageChange)="onPageChange($event)"
+  />
+</div>
+
+<!-- Add / Edit Product Modal -->
+<div *ngIf="showFormModal" class="admin-modal-backdrop" adminModalBackdrop (backdropClose)="closeFormModal()">
+  <div class="admin-modal-panel admin-modal-panel--lg p-6" (mousedown)="$event.stopPropagation()">
+    <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+      <h2 class="font-headline-md text-headline-md text-on-background">{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h2>
+      <button type="button" class="text-on-surface-variant hover:text-on-surface p-1" (click)="closeFormModal()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Title</label>
+          <input type="text" maxlength="120" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('title')" formControlName="title" />
+          <app-form-field-error [control]="productForm.get('title')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Price ($)</label>
+          <input type="number" min="1" max="999999" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('price')" formControlName="price" />
+          <app-form-field-error [control]="productForm.get('price')"></app-form-field-error>
+        </div>
+        <div class="md:col-span-2">
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Description</label>
+          <textarea rows="3" maxlength="2000" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('desc')" formControlName="desc"></textarea>
+          <app-form-field-error [control]="productForm.get('desc')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Category</label>
+          <select class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('category')" formControlName="category" (change)="onCategoryChange($event)">
+            <option value="">Select category</option>
+            <option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</option>
+          </select>
+          <app-form-field-error [control]="productForm.get('category')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Sub Category</label>
+          <select class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" [class.border-sale-red]="invalid('subCategory')" formControlName="subCategory" [disabled]="!productForm.get('category')?.value">
+            <option value="">Select sub category</option>
+            <option *ngFor="let sub of subCategories" [value]="sub._id">{{ sub.name }}</option>
+          </select>
+          <app-form-field-error [control]="productForm.get('subCategory')"></app-form-field-error>
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Product Image</label>
+          <input type="file" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-container file:text-on-primary-container hover:file:bg-primary hover:file:text-white transition-all cursor-pointer" (change)="onFileSelected($event)" accept="image/*" />
+          <div *ngIf="imagePreview" class="mt-4">
+            <img [src]="imagePreview" alt="Preview" class="w-24 h-24 object-cover rounded-md border border-border-subtle" />
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Keywords (comma separated)</label>
+          <input type="text" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" formControlName="keywords" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Tags / Badges (comma separated)</label>
+          <input type="text" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" formControlName="tags" />
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Available Colors (comma separated)</label>
+          <input type="text" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" formControlName="colors" (input)="onColorsOrSizesChange()" />
+        </div>
+        <div>
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Available Sizes (comma separated)</label>
+          <input type="text" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" formControlName="sizes" (input)="onColorsOrSizesChange()" />
+        </div>
+        <div class="md:col-span-2">
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-2">Variant Stock Matrix</label>
+          <p class="font-body-sm text-on-surface-variant mb-3">Total stock: {{ totalVariantStock }}</p>
+          <div *ngIf="hasMatrixGrid" class="overflow-x-auto border border-border-subtle rounded-DEFAULT">
+            <table class="w-full text-left border-collapse">
+              <thead class="bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+                <tr>
+                  <th class="p-3 border-b border-border-subtle">Color \\ Size</th>
+                  <th *ngFor="let size of matrixSizes" class="p-3 border-b border-border-subtle text-center">{{ size }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let color of matrixColors">
+                  <td class="p-3 border-b border-border-subtle font-semibold">{{ color }}</td>
+                  <td *ngFor="let size of matrixSizes" class="p-3 border-b border-border-subtle text-center">
+                    <input type="number" min="0" class="w-20 px-2 py-1 border border-border-subtle rounded-DEFAULT bg-surface-bright text-center font-body-md text-on-surface" [value]="getVariantStock(color, size)" (input)="updateVariantStockByKey(color, size, $any($event.target).value)" />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div *ngIf="!hasMatrixGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div *ngFor="let variant of variantMatrix; let i = index" class="flex items-center gap-3 p-3 border border-border-subtle rounded-DEFAULT bg-surface-bright">
+              <span class="font-body-md text-on-surface flex-1">{{ getVariantLabel(variant) }}</span>
+              <input type="number" min="0" class="w-20 px-2 py-1 border border-border-subtle rounded-DEFAULT bg-surface-container-lowest text-center font-body-md text-on-surface" [value]="variant.stock" (input)="updateVariantStock(i, $any($event.target).value)" />
+            </div>
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="font-label-caps text-label-caps text-on-surface-variant block mb-1">Product Specs (comma separated)</label>
+          <input type="text" class="w-full px-4 py-2 border border-border-subtle rounded-DEFAULT bg-surface-bright focus:outline-none focus:border-primary font-body-md text-on-surface" formControlName="specs" />
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-4">
+        <button type="button" class="bg-surface-container-lowest text-on-surface-variant border border-border-subtle font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-surface-variant transition-colors uppercase tracking-wider" (click)="closeFormModal()">Cancel</button>
+        <button type="submit" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="productForm.invalid">
+          {{ isEditing ? 'Update' : 'Add Product' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Restock Modal -->
+<div *ngIf="showRestockModal && restockTarget" class="admin-modal-backdrop" adminModalBackdrop (backdropClose)="closeRestockModal()">
+  <div class="admin-modal-panel admin-modal-panel--md p-6" (mousedown)="$event.stopPropagation()">
+    <div class="mb-6 flex justify-between items-center border-b border-border-subtle pb-4">
+      <div>
+        <h2 class="font-headline-md text-headline-md text-on-background">Restock</h2>
+        <p class="font-body-md text-on-surface-variant mt-1">{{ restockTarget.title }}</p>
+      </div>
+      <button type="button" class="text-on-surface-variant hover:text-on-surface p-1" (click)="closeRestockModal()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <p class="font-body-sm text-on-surface-variant mb-4">Update stock quantities per variant. Total: {{ restockTotalStock }}</p>
+
+    <div class="space-y-3 max-h-[50vh] overflow-y-auto mb-6">
+      <div *ngFor="let variant of restockVariantMatrix; let i = index" class="flex items-center gap-4 p-3 border border-border-subtle rounded-DEFAULT bg-surface-bright">
+        <div class="flex-1 min-w-0">
+          <p class="font-body-md font-semibold text-on-surface">{{ getVariantLabel(variant) }}</p>
+          <p class="font-body-sm text-on-surface-variant truncate">SKU: {{ variant.sku }}</p>
+        </div>
+        <input
+          type="number"
+          min="0"
+          class="w-24 px-3 py-2 border border-border-subtle rounded-DEFAULT bg-surface-container-lowest text-center font-body-md text-on-surface"
+          [value]="variant.stock"
+          (input)="updateRestockVariantStock(i, $any($event.target).value)"
+        />
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-4">
+      <button type="button" class="bg-surface-container-lowest text-on-surface-variant border border-border-subtle font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-surface-variant transition-colors uppercase tracking-wider" (click)="closeRestockModal()">Cancel</button>
+      <button type="button" class="bg-primary text-on-primary font-label-caps text-[14px] py-2 px-6 rounded-DEFAULT hover:bg-on-primary-fixed-variant transition-colors uppercase tracking-wider" (click)="saveRestock()">Save Stock</button>
+    </div>
+  </div>
+</div>

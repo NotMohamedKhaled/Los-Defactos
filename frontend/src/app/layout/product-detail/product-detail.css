@@ -1,0 +1,55 @@
+.color-option {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.color-option:disabled {
+  cursor: not-allowed;
+}
+
+.color-swatch {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.color-swatch--light {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+.color-swatch--selected {
+  border-color: var(--color-primary, #6750a4);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--color-primary, #6750a4);
+  transform: scale(1.05);
+}
+
+.color-swatch--disabled {
+  opacity: 0.45;
+}
+
+.color-swatch__strike {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.color-swatch__strike::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: #d32f2f;
+  transform: rotate(-45deg);
+}
+
+.color-option:not(:disabled):hover .color-swatch:not(.color-swatch--disabled) {
+  transform: scale(1.08);
+}
